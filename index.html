@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MAROCMARKET – Gestion des réclamations clients</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  color-scheme: light;
+  --bg:#f4f5f7; --surface:#ffffff; --surface-2:#f8f9fb; --line:#e3e5ea;
+  --ink:#121826; --ink-2:#4a5162; --ink-3:#7a8194;
+  --brand:#1c5cab; --brand-2:#2a78d6; --brand-soft:#e6f0fc;
+  --bar:#2a78d6; --bar-2:#86b6ef;
+  --good:#0a7d0a; --good-bg:#e5f5e5;
+  --warn:#8a5a00; --warn-bg:#fdf1d6;
+  --serious:#a8471f; --serious-bg:#fbe7de;
+  --crit:#b42828; --crit-bg:#fbe3e3;
+  --info:#1c5cab; --info-bg:#e6f0fc;
+  --radius:10px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:var(--brand)}
+header.top{background:var(--surface);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
+.top-in{max-width:1240px;margin:0 auto;padding:10px 20px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.logo{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:.2px}
+.logo-mark{width:30px;height:30px;border-radius:8px;background:var(--brand);color:#fff;display:grid;place-items:center;font-size:13px;font-weight:700}
+.logo small{display:block;font-weight:500;color:var(--ink-3);font-size:11.5px;letter-spacing:0}
+nav.tabs{display:flex;gap:4px;margin-left:8px;flex-wrap:wrap}
+nav.tabs a{padding:7px 12px;border-radius:8px;text-decoration:none;color:var(--ink-2);font-weight:500}
+nav.tabs a:hover{background:var(--surface-2)}
+nav.tabs a.on{background:var(--brand-soft);color:var(--brand)}
+.mode{margin-left:auto;display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ink-2)}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--ink-3);display:inline-block}
+.dot.on{background:var(--good)} .dot.local{background:#eda100}
+main{max-width:1240px;margin:0 auto;padding:22px 20px 60px}
+h1{font-size:21px;margin:0 0 4px} h2{font-size:15px;margin:0 0 12px}
+.sub{color:var(--ink-2);margin:0 0 18px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px}
+.grid{display:grid;gap:14px}
+.kpis{grid-template-columns:repeat(auto-fit,minmax(165px,1fr));margin-bottom:14px}
+.kpi .lbl{color:var(--ink-2);font-size:12.5px;font-weight:500}
+.kpi .val{font-size:26px;font-weight:700;margin-top:4px;font-variant-numeric:tabular-nums}
+.kpi .hint{color:var(--ink-3);font-size:12px;margin-top:2px}
+.two{grid-template-columns:repeat(auto-fit,minmax(340px,1fr))}
+.bars{display:flex;flex-direction:column;gap:7px}
+.brow{display:grid;grid-template-columns:150px 1fr 54px;align-items:center;gap:10px;font-size:13px;padding:2px 0;border-radius:6px}
+.brow:hover{background:var(--surface-2)}
+.brow .bl{color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brow .track{height:14px;position:relative}
+.brow .fill{height:100%;background:var(--bar);border-radius:0 4px 4px 0;min-width:2px}
+.brow .bv{text-align:right;font-variant-numeric:tabular-nums;color:var(--ink)}
+.cols{display:flex;align-items:flex-end;gap:6px;height:150px;padding-top:6px;border-bottom:1px solid var(--line)}
+.col{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:stretch;height:100%;position:relative;cursor:default}
+.col .f{background:var(--bar);border-radius:4px 4px 0 0;min-height:2px}
+.col:hover .f{background:var(--brand)}
+.colx{display:flex;gap:6px;margin-top:5px}
+.colx span{flex:1;text-align:center;font-size:11px;color:var(--ink-3)}
+.tip{position:fixed;pointer-events:none;background:#121826;color:#fff;padding:6px 9px;border-radius:6px;font-size:12px;z-index:50;display:none;max-width:260px}
+.legend{font-size:12px;color:var(--ink-3);margin-top:8px}
+.btn{border:1px solid var(--line);background:var(--surface);padding:8px 13px;border-radius:8px;cursor:pointer;font-weight:500;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{background:var(--surface-2)}
+.btn.primary{background:var(--brand);border-color:var(--brand);color:#fff}
+.btn.primary:hover{background:#184f95}
+.btn.ai{background:#f1effd;border-color:#d6d1f6;color:#4a3aa7}
+.btn.ai:hover{background:#e7e3fb}
+.btn.sm{padding:5px 10px;font-size:12.5px}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.toolbar input[type=search]{flex:1;min-width:200px}
+input,select,textarea{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:8px 10px;outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--brand-2);box-shadow:0 0 0 3px var(--brand-soft)}
+textarea{width:100%;min-height:110px;resize:vertical}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;font-weight:600;color:var(--ink-2);font-size:12px;padding:9px 10px;border-bottom:1px solid var(--line);background:var(--surface-2);white-space:nowrap}
+td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
+tbody tr{cursor:pointer} tbody tr:hover{background:var(--surface-2)}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}
+.pill{display:inline-flex;align-items:center;gap:5px;padding:2px 8px;border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap}
+.p-Urgente{background:var(--crit-bg);color:var(--crit)}
+.p-Élevée{background:var(--serious-bg);color:var(--serious)}
+.p-Moyenne{background:var(--warn-bg);color:var(--warn)}
+.p-Faible{background:var(--surface-2);color:var(--ink-2);border:1px solid var(--line)}
+.late{color:var(--crit);font-weight:600}
+.muted{color:var(--ink-3)}
+.pager{display:flex;gap:8px;align-items:center;justify-content:flex-end;margin-top:10px;color:var(--ink-2);font-size:13px}
+.form{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
+.field label{display:block;font-size:12.5px;font-weight:600;color:var(--ink-2);margin-bottom:5px}
+.field input,.field select{width:100%}
+.full{grid-column:1/-1}
+.req{color:var(--crit)}
+.aibox{border:1px solid #d6d1f6;background:#f8f7fe;border-radius:var(--radius);padding:14px;margin-top:12px}
+.aibox h3{margin:0 0 8px;font-size:13.5px;color:#4a3aa7;display:flex;align-items:center;gap:6px}
+.aibox .warnline{font-size:12px;color:var(--ink-2);margin-top:8px}
+.kv{display:grid;grid-template-columns:140px 1fr;gap:6px 12px;font-size:13.5px}
+.kv dt{color:var(--ink-3)} .kv dd{margin:0}
+.steps{display:flex;gap:0;margin:6px 0 16px;flex-wrap:wrap}
+.step{flex:1;min-width:110px;text-align:center;padding:9px 6px;border:1px solid var(--line);background:var(--surface);font-size:12.5px;font-weight:600;color:var(--ink-3);position:relative}
+.step:first-child{border-radius:8px 0 0 8px}.step:last-child{border-radius:0 8px 8px 0}
+.step.done{background:var(--good-bg);color:var(--good);border-color:#c5e6c5}
+.step.cur{background:var(--brand);color:#fff;border-color:var(--brand)}
+.timeline{list-style:none;margin:0;padding:0}
+.timeline li{padding:8px 0 8px 18px;border-left:2px solid var(--line);position:relative;font-size:13px}
+.timeline li::before{content:"";position:absolute;left:-6px;top:12px;width:10px;height:10px;border-radius:50%;background:var(--surface);border:2px solid var(--brand-2)}
+.timeline .t{color:var(--ink-3);font-size:12px}
+.detail{grid-template-columns:minmax(0,1.6fr) minmax(280px,1fr)}
+@media (max-width:860px){.detail{grid-template-columns:1fr}.brow{grid-template-columns:110px 1fr 46px}}
+.banner{border:1px solid #f3dca5;background:#fff8e6;color:#6b4a00;border-radius:var(--radius);padding:10px 14px;margin-bottom:14px;font-size:13px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.banner.ok{border-color:#c5e6c5;background:#f0faf0;color:#145c14}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#121826;color:#fff;padding:10px 16px;border-radius:8px;z-index:60;font-size:13px;display:none}
+.spin{display:inline-block;width:13px;height:13px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:sp .8s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.synth{white-space:pre-wrap;font-size:13.5px;line-height:1.55}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.foot{color:var(--ink-3);font-size:12px;margin-top:30px;text-align:center}
+.hide{display:none!important}
+.backlink{display:inline-block;margin-bottom:10px;text-decoration:none;font-weight:500}
+</style>
+</head>
+<body>
+<header class="top"><div class="top-in">
+  <div class="logo"><div class="logo-mark">MM</div><div>MAROCMARKET<small>Gestion des réclamations clients</small></div></div>
+  <nav class="tabs">
+    <a href="#tableau-de-bord" data-r="tableau-de-bord">Tableau de bord</a>
+    <a href="#liste" data-r="liste">Réclamations</a>
+    <a href="#nouvelle" data-r="nouvelle">+ Nouvelle réclamation</a>
+    <a href="#aide" data-r="aide">Guide</a>
+  </nav>
+  <div class="mode" id="mode"><span class="dot"></span><span>Connexion…</span></div>
+</div></header>
+<main id="view"></main>
+<div class="tip" id="tip"></div>
+<div class="toast" id="toast"></div>
+<script>
+const DATA = {"rec":[["REC0001","2025-01-28","CL0089","AG04","Retard de livraison","Urgente","Site web","Clôturée","2025-02-01","V004"],["REC0002","2025-04-07","CL0122","AG06","Information produit","Élevée","Réseaux sociaux","Clôturée","2025-04-19","V012"],["REC0003","2025-10-17","CL0158","AG03","Erreur de facturation","Moyenne","Agence","Clôturée","2025-10-25","V003"],["REC0004","2025-04-23","CL0164","AG01","Retard de livraison","Élevée","Agence","Clôturée","2025-04-27","V001"],["REC0005","2025-06-19","CL0097","AG06","Retard de livraison","Moyenne","Site web","En cours",null,"V006"],["REC0006","2025-01-06","CL0092","AG01","Produit défectueux","Moyenne","Réseaux sociaux","Clôturée","2025-01-14","V001"],["REC0007","2025-07-04","CL0008","AG01","Retard de livraison","Faible","E-mail","Clôturée","2025-07-19","V007"],["REC0008","2025-06-23","CL0063","AG05","Retard de livraison","Faible","Téléphone","Clôturée","2025-06-28","V005"],["REC0009","2025-12-13","CL0098","AG02","Information produit","Élevée","Site web","Clôturée","2025-12-28","V002"],["REC0010","2025-08-22","CL0095","AG02","Erreur de facturation","Élevée","Agence","En attente",null,"V014"],["REC0011","2025-12-31","CL0031","AG01","Retard de livraison","Élevée","Réseaux sociaux","Clôturée","2026-01-04","V001"],["REC0012","2025-07-13","CL0096","AG06","Erreur de facturation","Moyenne","Téléphone","En attente",null,"V006"],["REC0013","2025-11-12","CL0049","AG05","Installation","Moyenne","Site web","Clôturée","2025-11-16","V005"],["REC0014","2025-03-06","CL0150","AG05","Demande de remboursement","Moyenne","Réseaux sociaux","Clôturée","2025-03-14","V017"],["REC0015","2025-02-03","CL0131","AG02","Demande de remboursement","Élevée","Agence","Clôturée","2025-02-12","V008"],["REC0016","2025-09-23","CL0046","AG04","Erreur de facturation","Élevée","Agence","Clôturée","2025-10-01","V016"],["REC0017","2025-08-31","CL0149","AG03","Demande de remboursement","Moyenne","Téléphone","En cours",null,"V015"],["REC0018","2025-04-17","CL0052","AG02","Demande de remboursement","Élevée","Agence","Clôturée","2025-04-22","V008"],["REC0019","2025-10-20","CL0096","AG02","Erreur de facturation","Moyenne","Agence","Clôturée","2025-10-22","V008"],["REC0020","2025-09-23","CL0059","AG03","Installation","Faible","Agence","Clôturée","2025-09-29","V009"],["REC0021","2025-08-28","CL0105","AG04","Erreur de facturation","Élevée","E-mail","Clôturée","2025-09-04","V004"],["REC0022","2025-08-15","CL0068","AG02","Information produit","Faible","Réseaux sociaux","En cours",null,"V008"],["REC0023","2025-09-20","CL0165","AG05","Produit défectueux","Élevée","Téléphone","En attente",null,"V005"],["REC0024","2025-02-06","CL0010","AG03","Installation","Moyenne","Site web","Clôturée","2025-02-12","V009"],["REC0025","2025-12-16","CL0049","AG03","Information produit","Moyenne","Réseaux sociaux","Clôturée","2025-12-30","V015"],["REC0026","2025-05-14","CL0198","AG01","Erreur de facturation","Moyenne","Réseaux sociaux","Clôturée","2025-05-21","V007"],["REC0027","2025-12-02","CL0121","AG01","Information produit","Moyenne","Agence","En cours",null,"V001"],["REC0028","2025-04-27","CL0186","AG02","Information produit","Moyenne","Agence","Clôturée","2025-05-07","V014"],["REC0029","2025-08-25","CL0022","AG03","Erreur de facturation","Élevée","E-mail","Clôturée","2025-09-06","V009"],["REC0030","2025-08-13","CL0143","AG04","Produit défectueux","Moyenne","Téléphone","Clôturée","2025-08-16","V010"],["REC0031","2025-09-13","CL0091","AG06","Erreur de facturation","Moyenne","Réseaux sociaux","Clôturée","2025-09-26","V012"],["REC0032","2025-06-03","CL0151","AG03","Produit défectueux","Moyenne","Site web","Clôturée","2025-06-06","V003"],["REC0033","2025-10-18","CL0155","AG06","Installation","Moyenne","Agence","Clôturée","2025-10-25","V006"],["REC0034","2025-02-02","CL0099","AG05","Retard de livraison","Moyenne","Site web","Clôturée","2025-02-10","V017"],["REC0035","2025-02-17","CL0027","AG02","Information produit","Moyenne","Agence","Clôturée","2025-03-01","V014"],["REC0036","2025-01-14","CL0051","AG02","Produit défectueux","Élevée","Site web","Clôturée","2025-01-18","V002"],["REC0037","2025-12-04","CL0018","AG05","Demande de remboursement","Faible","Agence","Clôturée","2025-12-07","V011"],["REC0038","2025-07-20","CL0029","AG02","Retard de livraison","Moyenne","E-mail","Clôturée","2025-07-22","V008"],["REC0039","2025-03-08","CL0080","AG02","Demande de remboursement","Élevée","Réseaux sociaux","Clôturée","2025-03-11","V014"],["REC0040","2025-06-08","CL0052","AG05","Installation","Élevée","E-mail","Clôturée","2025-06-12","V005"],["REC0041","2025-08-17","CL0103","AG01","Installation","Élevée","Agence","Clôturée","2025-09-01","V013"],["REC0042","2025-08-24","CL0148","AG04","Produit défectueux","Élevée","Site web","Clôturée","2025-09-08","V010"],["REC0043","2025-12-25","CL0077","AG06","Demande de remboursement","Moyenne","Agence","En cours",null,"V006"],["REC0044","2025-05-08","CL0159","AG02","Information produit","Moyenne","Réseaux sociaux","Clôturée","2025-05-19","V002"],["REC0045","2025-02-18","CL0179","AG04","Produit défectueux","Moyenne","Réseaux sociaux","En cours",null,"V010"],["REC0046","2025-05-30","CL0018","AG06","Information produit","Élevée","Agence","En cours",null,"V012"],["REC0047","2025-10-11","CL0095","AG01","Produit défectueux","Élevée","Agence","Clôturée","2025-10-24","V007"],["REC0048","2025-08-19","CL0065","AG02","Retard de livraison","Moyenne","Agence","Clôturée","2025-08-21","V014"],["REC0049","2025-07-15","CL0191","AG03","Demande de remboursement","Élevée","Téléphone","Clôturée","2025-07-16","V009"],["REC0050","2025-12-30","CL0084","AG02","Information produit","Élevée","Réseaux sociaux","Clôturée","2026-01-01","V002"],["REC0051","2025-12-03","CL0183","AG02","Demande de remboursement","Faible","E-mail","En cours",null,"V002"],["REC0052","2025-01-10","CL0026","AG05","Retard de livraison","Moyenne","Téléphone","Clôturée","2025-01-17","V005"],["REC0053","2025-12-10","CL0174","AG01","Erreur de facturation","Faible","Téléphone","Clôturée","2025-12-14","V013"],["REC0054","2025-12-12","CL0056","AG05","Demande de remboursement","Élevée","Téléphone","En cours",null,"V017"],["REC0055","2025-07-19","CL0079","AG06","Demande de remboursement","Faible","E-mail","Clôturée","2025-08-01","V012"],["REC0056","2025-05-08","CL0062","AG03","Retard de livraison","Faible","E-mail","Clôturée","2025-05-09","V009"],["REC0057","2025-12-15","CL0017","AG06","Retard de livraison","Urgente","E-mail","Clôturée","2025-12-29","V018"],["REC0058","2025-03-27","CL0107","AG01","Installation","Faible","E-mail","Clôturée","2025-04-05","V013"],["REC0059","2025-11-16","CL0139","AG02","Demande de remboursement","Urgente","Site web","Clôturée","2025-11-20","V002"],["REC0060","2025-06-15","CL0004","AG02","Demande de remboursement","Élevée","E-mail","Clôturée","2025-06-19","V008"],["REC0061","2025-02-03","CL0072","AG06","Information produit","Moyenne","Agence","Clôturée","2025-02-18","V006"],["REC0062","2025-06-04","CL0128","AG05","Produit défectueux","Élevée","E-mail","En cours",null,"V017"],["REC0063","2025-05-09","CL0154","AG01","Erreur de facturation","Urgente","E-mail","Clôturée","2025-05-20","V013"],["REC0064","2025-06-20","CL0163","AG02","Information produit","Moyenne","Téléphone","En cours",null,"V008"],["REC0065","2025-06-21","CL0156","AG01","Installation","Moyenne","Réseaux sociaux","Clôturée","2025-07-03","V001"],["REC0066","2025-10-28","CL0004","AG06","Retard de livraison","Faible","Site web","En cours",null,"V006"],["REC0067","2025-05-02","CL0110","AG06","Retard de livraison","Moyenne","Site web","Clôturée","2025-05-08","V012"],["REC0068","2025-04-14","CL0097","AG02","Retard de livraison","Moyenne","Agence","Clôturée","2025-04-26","V014"],["REC0069","2025-06-18","CL0072","AG02","Erreur de facturation","Moyenne","Agence","En cours",null,"V014"],["REC0070","2025-11-28","CL0193","AG03","Produit défectueux","Moyenne","E-mail","En cours",null,"V009"],["REC0071","2025-04-16","CL0014","AG05","Information produit","Urgente","E-mail","En cours",null,"V017"],["REC0072","2025-11-08","CL0134","AG04","Erreur de facturation","Faible","Téléphone","Clôturée","2025-11-10","V010"],["REC0073","2025-04-09","CL0163","AG01","Retard de livraison","Urgente","Réseaux sociaux","Clôturée","2025-04-12","V013"],["REC0074","2025-04-15","CL0130","AG02","Produit défectueux","Moyenne","E-mail","Clôturée","2025-04-18","V014"],["REC0075","2025-05-06","CL0046","AG04","Installation","Moyenne","E-mail","Clôturée","2025-05-14","V016"],["REC0076","2025-05-20","CL0021","AG04","Erreur de facturation","Moyenne","Réseaux sociaux","Clôturée","2025-05-28","V010"],["REC0077","2025-11-09","CL0111","AG06","Retard de livraison","Élevée","Agence","En cours",null,"V006"],["REC0078","2025-08-07","CL0195","AG01","Erreur de facturation","Moyenne","Site web","Clôturée","2025-08-19","V001"],["REC0079","2025-07-14","CL0079","AG04","Demande de remboursement","Moyenne","Site web","Clôturée","2025-07-22","V004"],["REC0080","2025-03-11","CL0121","AG06","Retard de livraison","Faible","Site web","Clôturée","2025-03-12","V018"],["REC0081","2025-09-09","CL0107","AG04","Demande de remboursement","Urgente","Réseaux sociaux","Clôturée","2025-09-17","V010"],["REC0082","2025-02-06","CL0010","AG04","Produit défectueux","Moyenne","Site web","Clôturée","2025-02-10","V010"],["REC0083","2025-06-28","CL0182","AG05","Demande de remboursement","Moyenne","Agence","Clôturée","2025-06-29","V017"],["REC0084","2025-08-06","CL0064","AG06","Retard de livraison","Moyenne","Téléphone","En attente",null,"V012"],["REC0085","2025-12-24","CL0166","AG06","Retard de livraison","Moyenne","Site web","Clôturée","2026-01-04","V006"],["REC0086","2025-05-07","CL0149","AG05","Information produit","Élevée","Agence","Clôturée","2025-05-20","V005"],["REC0087","2025-07-23","CL0151","AG06","Produit défectueux","Moyenne","Agence","Clôturée","2025-07-30","V006"],["REC0088","2025-05-10","CL0078","AG06","Installation","Urgente","Site web","Clôturée","2025-05-17","V018"],["REC0089","2025-07-30","CL0023","AG06","Produit défectueux","Moyenne","E-mail","En cours",null,"V012"],["REC0090","2025-05-18","CL0054","AG06","Information produit","Moyenne","Téléphone","Clôturée","2025-05-21","V012"],["REC0091","2025-02-19","CL0199","AG01","Information produit","Moyenne","Agence","Clôturée","2025-02-24","V013"],["REC0092","2025-03-29","CL0096","AG02","Retard de livraison","Élevée","Téléphone","Clôturée","2025-04-01","V014"],["REC0093","2025-08-19","CL0055","AG05","Retard de livraison","Moyenne","Site web","En cours",null,"V005"],["REC0094","2025-07-29","CL0161","AG04","Installation","Faible","Téléphone","Clôturée","2025-07-31","V010"],["REC0095","2025-07-13","CL0071","AG01","Produit défectueux","Moyenne","Téléphone","Clôturée","2025-07-21","V007"],["REC0096","2025-01-05","CL0069","AG01","Produit défectueux","Élevée","Téléphone","En cours",null,"V001"],["REC0097","2025-04-19","CL0002","AG05","Demande de remboursement","Moyenne","Agence","En attente",null,"V011"],["REC0098","2025-08-31","CL0155","AG03","Demande de remboursement","Moyenne","E-mail","Clôturée","2025-09-06","V009"],["REC0099","2025-07-04","CL0103","AG06","Demande de remboursement","Moyenne","Téléphone","En attente",null,"V012"],["REC0100","2025-01-02","CL0179","AG04","Demande de remboursement","Élevée","Téléphone","En cours",null,"V004"],["REC0101","2025-11-05","CL0136","AG01","Erreur de facturation","Urgente","Site web","En cours",null,"V001"],["REC0102","2025-08-20","CL0176","AG05","Information produit","Élevée","Téléphone","Clôturée","2025-08-31","V005"],["REC0103","2025-11-23","CL0005","AG03","Information produit","Moyenne","Site web","Clôturée","2025-12-06","V015"],["REC0104","2025-12-14","CL0060","AG04","Installation","Moyenne","Site web","En cours",null,"V004"],["REC0105","2025-08-08","CL0169","AG04","Information produit","Élevée","Réseaux sociaux","En cours",null,"V010"],["REC0106","2025-04-10","CL0037","AG06","Installation","Élevée","Réseaux sociaux","En cours",null,"V018"],["REC0107","2025-01-17","CL0128","AG02","Produit défectueux","Moyenne","E-mail","Clôturée","2025-01-26","V008"],["REC0108","2025-08-17","CL0124","AG01","Information produit","Moyenne","Téléphone","Clôturée","2025-08-20","V013"],["REC0109","2025-02-24","CL0184","AG04","Produit défectueux","Faible","Site web","En attente",null,"V010"],["REC0110","2025-04-23","CL0066","AG06","Information produit","Moyenne","E-mail","En cours",null,"V006"],["REC0111","2025-10-01","CL0186","AG06","Demande de remboursement","Faible","Réseaux sociaux","Clôturée","2025-10-15","V006"],["REC0112","2025-11-04","CL0165","AG01","Erreur de facturation","Moyenne","Agence","Clôturée","2025-11-16","V013"],["REC0113","2025-12-01","CL0144","AG06","Demande de remboursement","Élevée","Téléphone","Clôturée","2025-12-03","V012"],["REC0114","2025-02-27","CL0088","AG01","Information produit","Moyenne","Site web","Clôturée","2025-03-01","V013"],["REC0115","2025-03-07","CL0098","AG03","Installation","Élevée","E-mail","Clôturée","2025-03-17","V015"],["REC0116","2025-07-18","CL0082","AG04","Erreur de facturation","Élevée","Réseaux sociaux","En attente",null,"V004"],["REC0117","2025-12-06","CL0152","AG05","Retard de livraison","Faible","Site web","Clôturée","2025-12-20","V011"],["REC0118","2025-03-16","CL0057","AG03","Demande de remboursement","Élevée","Téléphone","Clôturée","2025-03-21","V003"],["REC0119","2025-11-03","CL0080","AG03","Installation","Urgente","Réseaux sociaux","Clôturée","2025-11-17","V015"],["REC0120","2025-09-02","CL0056","AG06","Demande de remboursement","Moyenne","Site web","En attente",null,"V006"],["REC0121","2025-03-20","CL0054","AG06","Information produit","Urgente","E-mail","Clôturée","2025-04-01","V006"],["REC0122","2025-09-07","CL0101","AG06","Erreur de facturation","Urgente","Téléphone","Clôturée","2025-09-21","V006"],["REC0123","2025-10-08","CL0087","AG04","Demande de remboursement","Élevée","Agence","En attente",null,"V010"],["REC0124","2025-02-06","CL0187","AG05","Erreur de facturation","Moyenne","Réseaux sociaux","En attente",null,"V017"],["REC0125","2025-07-21","CL0034","AG01","Erreur de facturation","Élevée","Site web","Clôturée","2025-08-03","V001"],["REC0126","2025-08-23","CL0042","AG06","Installation","Faible","E-mail","Clôturée","2025-08-28","V006"],["REC0127","2025-04-22","CL0051","AG06","Information produit","Élevée","Téléphone","Clôturée","2025-05-06","V018"],["REC0128","2025-12-14","CL0097","AG02","Demande de remboursement","Élevée","Site web","Clôturée","2025-12-15","V002"],["REC0129","2025-08-31","CL0014","AG02","Produit défectueux","Urgente","E-mail","Clôturée","2025-09-10","V008"],["REC0130","2025-11-18","CL0104","AG06","Retard de livraison","Faible","Réseaux sociaux","Clôturée","2025-11-26","V012"],["REC0131","2025-03-30","CL0191","AG06","Demande de remboursement","Élevée","Téléphone","En attente",null,"V018"],["REC0132","2025-08-26","CL0098","AG06","Erreur de facturation","Moyenne","Téléphone","Clôturée","2025-08-27","V006"],["REC0133","2025-02-12","CL0126","AG01","Information produit","Élevée","Réseaux sociaux","Clôturée","2025-02-13","V013"],["REC0134","2025-10-21","CL0071","AG04","Information produit","Élevée","Agence","En cours",null,"V004"],["REC0135","2025-09-05","CL0180","AG06","Demande de remboursement","Moyenne","Réseaux sociaux","Clôturée","2025-09-11","V006"],["REC0136","2025-04-05","CL0180","AG04","Produit défectueux","Moyenne","Agence","En cours",null,"V016"],["REC0137","2025-02-02","CL0150","AG05","Installation","Élevée","E-mail","En cours",null,"V005"],["REC0138","2025-12-04","CL0047","AG01","Installation","Élevée","Téléphone","Clôturée","2025-12-12","V007"],["REC0139","2025-01-21","CL0148","AG02","Retard de livraison","Élevée","Téléphone","Clôturée","2025-01-26","V002"],["REC0140","2025-03-05","CL0077","AG05","Erreur de facturation","Urgente","E-mail","Clôturée","2025-03-16","V005"],["REC0141","2025-06-03","CL0133","AG01","Erreur de facturation","Élevée","Site web","Clôturée","2025-06-13","V007"],["REC0142","2025-09-25","CL0156","AG03","Installation","Moyenne","E-mail","Clôturée","2025-10-06","V003"],["REC0143","2025-01-19","CL0037","AG02","Erreur de facturation","Élevée","Réseaux sociaux","Clôturée","2025-01-22","V014"],["REC0144","2025-04-21","CL0092","AG05","Erreur de facturation","Faible","Site web","Clôturée","2025-04-23","V017"],["REC0145","2025-05-14","CL0167","AG04","Retard de livraison","Moyenne","Agence","Clôturée","2025-05-19","V016"],["REC0146","2025-12-22","CL0138","AG02","Retard de livraison","Faible","E-mail","En cours",null,"V014"],["REC0147","2025-07-10","CL0169","AG05","Information produit","Élevée","Site web","Clôturée","2025-07-17","V005"],["REC0148","2025-08-11","CL0007","AG04","Installation","Moyenne","Réseaux sociaux","Clôturée","2025-08-20","V004"],["REC0149","2025-07-28","CL0085","AG01","Information produit","Faible","E-mail","En cours",null,"V007"],["REC0150","2025-04-26","CL0003","AG03","Produit défectueux","Moyenne","Téléphone","En attente",null,"V009"],["REC0151","2025-03-05","CL0135","AG02","Information produit","Élevée","Téléphone","Clôturée","2025-03-18","V008"],["REC0152","2025-09-28","CL0180","AG03","Installation","Élevée","Téléphone","Clôturée","2025-10-08","V003"],["REC0153","2025-03-29","CL0193","AG03","Demande de remboursement","Faible","Réseaux sociaux","En cours",null,"V015"],["REC0154","2025-10-10","CL0104","AG05","Demande de remboursement","Moyenne","E-mail","Clôturée","2025-10-21","V017"],["REC0155","2025-12-03","CL0037","AG02","Demande de remboursement","Moyenne","Site web","Clôturée","2025-12-18","V014"],["REC0156","2025-12-29","CL0174","AG02","Installation","Moyenne","Agence","Clôturée","2026-01-06","V008"],["REC0157","2025-09-15","CL0071","AG03","Demande de remboursement","Moyenne","Site web","Clôturée","2025-09-30","V003"],["REC0158","2025-11-22","CL0079","AG01","Demande de remboursement","Élevée","Téléphone","En cours",null,"V013"],["REC0159","2025-02-09","CL0062","AG06","Produit défectueux","Faible","Réseaux sociaux","Clôturée","2025-02-21","V012"],["REC0160","2025-09-10","CL0109","AG01","Information produit","Moyenne","Agence","En cours",null,"V007"],["REC0161","2025-09-21","CL0174","AG06","Installation","Élevée","Téléphone","Clôturée","2025-10-01","V006"],["REC0162","2025-08-06","CL0137","AG06","Information produit","Moyenne","Réseaux sociaux","En attente",null,"V018"],["REC0163","2025-12-17","CL0011","AG05","Installation","Moyenne","E-mail","Clôturée","2026-01-01","V017"],["REC0164","2025-03-31","CL0094","AG01","Retard de livraison","Moyenne","Agence","En attente",null,"V007"],["REC0165","2025-07-14","CL0096","AG02","Produit défectueux","Moyenne","Téléphone","Clôturée","2025-07-28","V014"],["REC0166","2025-05-29","CL0124","AG03","Erreur de facturation","Moyenne","Agence","Clôturée","2025-06-09","V015"],["REC0167","2025-04-22","CL0165","AG03","Installation","Élevée","Agence","Clôturée","2025-04-30","V015"],["REC0168","2025-01-30","CL0002","AG03","Installation","Moyenne","Site web","Clôturée","2025-02-01","V003"],["REC0169","2025-04-06","CL0091","AG04","Produit défectueux","Faible","Réseaux sociaux","Clôturée","2025-04-08","V016"],["REC0170","2025-03-20","CL0032","AG04","Demande de remboursement","Faible","E-mail","En cours",null,"V010"],["REC0171","2025-08-29","CL0096","AG04","Erreur de facturation","Moyenne","Site web","En cours",null,"V016"],["REC0172","2025-02-25","CL0169","AG04","Demande de remboursement","Faible","Site web","Clôturée","2025-03-04","V004"],["REC0173","2025-12-30","CL0029","AG02","Retard de livraison","Moyenne","Site web","Clôturée","2026-01-06","V014"],["REC0174","2025-01-17","CL0171","AG02","Retard de livraison","Urgente","Téléphone","En attente",null,"V008"],["REC0175","2025-08-04","CL0141","AG04","Demande de remboursement","Élevée","Réseaux sociaux","Clôturée","2025-08-10","V010"],["REC0176","2025-07-19","CL0029","AG02","Produit défectueux","Élevée","Téléphone","Clôturée","2025-07-25","V014"],["REC0177","2025-12-17","CL0014","AG02","Information produit","Élevée","Téléphone","Clôturée","2025-12-27","V014"],["REC0178","2025-08-11","CL0075","AG04","Erreur de facturation","Moyenne","Réseaux sociaux","En cours",null,"V004"],["REC0179","2025-03-20","CL0131","AG06","Retard de livraison","Moyenne","E-mail","En cours",null,"V012"],["REC0180","2025-12-08","CL0051","AG04","Demande de remboursement","Élevée","Réseaux sociaux","En cours",null,"V016"],["REC0181","2025-11-09","CL0049","AG02","Installation","Moyenne","Agence","Clôturée","2025-11-11","V002"],["REC0182","2025-01-20","CL0050","AG03","Retard de livraison","Moyenne","Agence","Clôturée","2025-01-22","V003"],["REC0183","2025-07-28","CL0079","AG05","Information produit","Moyenne","Agence","Clôturée","2025-08-03","V011"],["REC0184","2025-02-01","CL0110","AG05","Information produit","Faible","Site web","Clôturée","2025-02-07","V011"],["REC0185","2025-12-31","CL0064","AG04","Erreur de facturation","Élevée","Site web","Clôturée","2026-01-01","V004"],["REC0186","2025-04-19","CL0121","AG03","Erreur de facturation","Élevée","Agence","Clôturée","2025-04-22","V009"],["REC0187","2025-07-06","CL0078","AG03","Produit défectueux","Faible","Site web","Clôturée","2025-07-15","V003"],["REC0188","2025-07-04","CL0093","AG06","Information produit","Élevée","Site web","Clôturée","2025-07-10","V006"],["REC0189","2025-04-18","CL0099","AG05","Produit défectueux","Élevée","Téléphone","Clôturée","2025-04-30","V017"],["REC0190","2025-01-22","CL0168","AG05","Retard de livraison","Faible","Réseaux sociaux","Clôturée","2025-01-24","V005"],["REC0191","2025-11-13","CL0078","AG03","Information produit","Moyenne","E-mail","En cours",null,"V015"],["REC0192","2025-01-23","CL0050","AG02","Demande de remboursement","Moyenne","Site web","Clôturée","2025-02-07","V014"],["REC0193","2025-07-07","CL0162","AG04","Information produit","Faible","Réseaux sociaux","Clôturée","2025-07-15","V010"],["REC0194","2025-09-15","CL0043","AG01","Installation","Moyenne","Téléphone","En attente",null,"V007"],["REC0195","2025-10-17","CL0178","AG01","Retard de livraison","Élevée","Réseaux sociaux","Clôturée","2025-10-28","V013"],["REC0196","2025-02-08","CL0113","AG02","Installation","Moyenne","Réseaux sociaux","En cours",null,"V008"],["REC0197","2025-05-20","CL0048","AG02","Produit défectueux","Faible","Réseaux sociaux","Clôturée","2025-06-01","V002"],["REC0198","2025-08-22","CL0182","AG05","Information produit","Moyenne","Site web","Clôturée","2025-08-26","V011"],["REC0199","2025-10-10","CL0044","AG01","Retard de livraison","Faible","E-mail","Clôturée","2025-10-11","V013"],["REC0200","2025-05-23","CL0070","AG02","Produit défectueux","Moyenne","Réseaux sociaux","Clôturée","2025-06-06","V002"],["REC0201","2025-03-01","CL0167","AG01","Erreur de facturation","Moyenne","Téléphone","En attente",null,"V007"],["REC0202","2025-12-28","CL0068","AG05","Information produit","Faible","Site web","En cours",null,"V011"],["REC0203","2025-01-30","CL0003","AG06","Erreur de facturation","Moyenne","Site web","En attente",null,"V006"],["REC0204","2025-01-09","CL0169","AG05","Installation","Faible","Site web","En cours",null,"V011"],["REC0205","2025-11-17","CL0155","AG06","Installation","Moyenne","E-mail","Clôturée","2025-11-23","V012"],["REC0206","2025-10-25","CL0193","AG06","Demande de remboursement","Faible","Site web","Clôturée","2025-11-06","V012"],["REC0207","2025-03-17","CL0024","AG04","Demande de remboursement","Faible","E-mail","Clôturée","2025-03-31","V004"],["REC0208","2025-10-19","CL0187","AG04","Retard de livraison","Moyenne","Agence","Clôturée","2025-10-22","V004"],["REC0209","2025-12-18","CL0049","AG05","Produit défectueux","Faible","Agence","Clôturée","2025-12-26","V017"],["REC0210","2025-02-21","CL0135","AG06","Retard de livraison","Élevée","Téléphone","En cours",null,"V018"],["REC0211","2025-07-13","CL0006","AG04","Produit défectueux","Élevée","Téléphone","En cours",null,"V016"],["REC0212","2025-03-09","CL0198","AG02","Produit défectueux","Moyenne","Téléphone","En attente",null,"V014"],["REC0213","2025-01-05","CL0139","AG01","Information produit","Élevée","E-mail","En cours",null,"V001"],["REC0214","2025-03-13","CL0195","AG04","Installation","Élevée","Site web","En cours",null,"V010"],["REC0215","2025-09-03","CL0063","AG02","Produit défectueux","Moyenne","Téléphone","Clôturée","2025-09-12","V002"],["REC0216","2025-01-23","CL0140","AG01","Erreur de facturation","Faible","E-mail","En cours",null,"V007"],["REC0217","2025-01-01","CL0007","AG02","Retard de livraison","Moyenne","E-mail","Clôturée","2025-01-12","V008"],["REC0218","2025-12-17","CL0176","AG04","Information produit","Élevée","E-mail","Clôturée","2025-12-20","V004"],["REC0219","2025-02-22","CL0092","AG03","Produit défectueux","Moyenne","Téléphone","Clôturée","2025-03-09","V003"],["REC0220","2025-11-06","CL0046","AG02","Demande de remboursement","Moyenne","E-mail","Clôturée","2025-11-17","V008"],["REC0221","2025-12-08","CL0078","AG06","Installation","Élevée","Agence","Clôturée","2025-12-10","V012"],["REC0222","2025-12-05","CL0068","AG03","Information produit","Élevée","E-mail","En cours",null,"V003"],["REC0223","2025-06-13","CL0100","AG02","Demande de remboursement","Élevée","Téléphone","En cours",null,"V008"],["REC0224","2025-02-27","CL0110","AG05","Information produit","Moyenne","Agence","Clôturée","2025-03-02","V005"],["REC0225","2025-06-30","CL0127","AG03","Demande de remboursement","Moyenne","Site web","En attente",null,"V015"],["REC0226","2025-03-12","CL0063","AG06","Demande de remboursement","Moyenne","Réseaux sociaux","Clôturée","2025-03-21","V012"],["REC0227","2025-10-02","CL0099","AG02","Produit défectueux","Moyenne","E-mail","Clôturée","2025-10-12","V014"],["REC0228","2025-12-26","CL0061","AG01","Erreur de facturation","Faible","Site web","En attente",null,"V001"],["REC0229","2025-10-13","CL0035","AG04","Produit défectueux","Faible","Site web","Clôturée","2025-10-27","V004"],["REC0230","2025-08-24","CL0142","AG02","Demande de remboursement","Moyenne","E-mail","En cours",null,"V002"],["REC0231","2025-03-02","CL0181","AG06","Retard de livraison","Moyenne","Téléphone","Clôturée","2025-03-09","V012"],["REC0232","2025-12-26","CL0170","AG01","Installation","Faible","Téléphone","En cours",null,"V001"],["REC0233","2025-03-17","CL0037","AG03","Produit défectueux","Moyenne","E-mail","Clôturée","2025-03-31","V009"],["REC0234","2025-04-04","CL0191","AG04","Retard de livraison","Élevée","Agence","Clôturée","2025-04-09","V010"],["REC0235","2025-06-22","CL0166","AG04","Information produit","Faible","Téléphone","Clôturée","2025-06-23","V016"],["REC0236","2025-11-06","CL0129","AG02","Retard de livraison","Faible","Agence","En cours",null,"V014"],["REC0237","2025-10-11","CL0067","AG06","Installation","Moyenne","Site web","Clôturée","2025-10-18","V006"],["REC0238","2025-02-17","CL0097","AG05","Retard de livraison","Élevée","Agence","Clôturée","2025-02-18","V005"],["REC0239","2025-04-05","CL0144","AG06","Installation","Élevée","Agence","En cours",null,"V012"],["REC0240","2025-06-10","CL0165","AG06","Demande de remboursement","Élevée","Agence","Clôturée","2025-06-23","V012"],["REC0241","2025-04-10","CL0028","AG03","Produit défectueux","Faible","Téléphone","Clôturée","2025-04-24","V009"],["REC0242","2025-05-03","CL0042","AG03","Installation","Faible","E-mail","Clôturée","2025-05-04","V009"],["REC0243","2025-10-10","CL0164","AG02","Produit défectueux","Moyenne","Téléphone","Clôturée","2025-10-20","V014"],["REC0244","2025-10-16","CL0012","AG04","Produit défectueux","Moyenne","Site web","En attente",null,"V004"],["REC0245","2025-05-25","CL0129","AG04","Retard de livraison","Moyenne","Téléphone","Clôturée","2025-05-31","V004"],["REC0246","2025-06-19","CL0190","AG04","Installation","Faible","Téléphone","En cours",null,"V004"],["REC0247","2025-10-28","CL0123","AG04","Installation","Élevée","Agence","Clôturée","2025-10-31","V004"],["REC0248","2025-02-10","CL0024","AG06","Information produit","Moyenne","E-mail","Clôturée","2025-02-21","V018"],["REC0249","2025-03-24","CL0133","AG05","Information produit","Moyenne","Agence","Clôturée","2025-04-06","V011"],["REC0250","2025-03-09","CL0075","AG03","Erreur de facturation","Moyenne","Agence","En attente",null,"V003"],["REC0251","2025-05-03","CL0157","AG02","Installation","Faible","Téléphone","Clôturée","2025-05-14","V008"],["REC0252","2025-01-08","CL0197","AG02","Erreur de facturation","Moyenne","Agence","En attente",null,"V002"],["REC0253","2025-02-18","CL0081","AG04","Retard de livraison","Urgente","Site web","Clôturée","2025-02-23","V016"],["REC0254","2025-06-30","CL0019","AG01","Retard de livraison","Élevée","Agence","Clôturée","2025-07-08","V007"],["REC0255","2025-11-29","CL0032","AG02","Installation","Moyenne","Agence","Clôturée","2025-12-04","V008"],["REC0256","2025-11-14","CL0034","AG06","Demande de remboursement","Moyenne","Site web","En cours",null,"V012"],["REC0257","2025-02-12","CL0106","AG06","Installation","Moyenne","Téléphone","En cours",null,"V018"],["REC0258","2025-11-14","CL0015","AG06","Information produit","Élevée","E-mail","Clôturée","2025-11-23","V006"],["REC0259","2025-02-23","CL0097","AG03","Retard de livraison","Moyenne","Agence","En cours",null,"V003"],["REC0260","2025-08-25","CL0024","AG06","Erreur de facturation","Moyenne","Téléphone","Clôturée","2025-09-09","V012"],["REC0261","2025-02-13","CL0188","AG02","Produit défectueux","Élevée","E-mail","En attente",null,"V008"],["REC0262","2025-07-25","CL0017","AG03","Erreur de facturation","Moyenne","Agence","Clôturée","2025-07-29","V015"],["REC0263","2025-02-28","CL0117","AG03","Produit défectueux","Moyenne","E-mail","En attente",null,"V003"],["REC0264","2025-06-13","CL0009","AG05","Installation","Élevée","Agence","Clôturée","2025-06-26","V011"],["REC0265","2025-08-31","CL0014","AG02","Retard de livraison","Élevée","Agence","En attente",null,"V014"],["REC0266","2025-05-19","CL0163","AG03","Retard de livraison","Faible","Site web","Clôturée","2025-05-26","V003"],["REC0267","2025-12-31","CL0108","AG04","Installation","Moyenne","Téléphone","En cours",null,"V004"],["REC0268","2025-02-17","CL0088","AG04","Erreur de facturation","Faible","Agence","Clôturée","2025-02-24","V010"],["REC0269","2025-10-02","CL0042","AG06","Information produit","Moyenne","Agence","En cours",null,"V018"],["REC0270","2025-01-06","CL0153","AG05","Retard de livraison","Faible","Site web","Clôturée","2025-01-16","V005"],["REC0271","2025-12-07","CL0191","AG06","Information produit","Élevée","E-mail","Clôturée","2025-12-22","V012"],["REC0272","2025-09-13","CL0030","AG03","Information produit","Moyenne","E-mail","Clôturée","2025-09-14","V009"],["REC0273","2025-11-21","CL0164","AG04","Installation","Faible","Réseaux sociaux","Clôturée","2025-11-25","V010"],["REC0274","2025-03-27","CL0097","AG05","Retard de livraison","Moyenne","Réseaux sociaux","En attente",null,"V017"],["REC0275","2025-01-08","CL0094","AG03","Produit défectueux","Moyenne","Agence","Clôturée","2025-01-22","V003"],["REC0276","2025-11-29","CL0106","AG04","Demande de remboursement","Moyenne","Réseaux sociaux","En cours",null,"V010"],["REC0277","2025-06-21","CL0046","AG01","Demande de remboursement","Moyenne","Réseaux sociaux","Clôturée","2025-07-01","V001"],["REC0278","2025-08-12","CL0073","AG04","Information produit","Élevée","Réseaux sociaux","Clôturée","2025-08-17","V016"],["REC0279","2025-02-20","CL0027","AG01","Produit défectueux","Moyenne","Agence","Clôturée","2025-02-27","V001"],["REC0280","2025-11-16","CL0026","AG05","Information produit","Moyenne","Site web","Clôturée","2025-11-17","V017"],["REC0281","2025-08-04","CL0058","AG02","Demande de remboursement","Moyenne","Téléphone","Clôturée","2025-08-18","V008"],["REC0282","2025-06-29","CL0106","AG04","Information produit","Élevée","Site web","En cours",null,"V004"],["REC0283","2025-04-25","CL0073","AG05","Erreur de facturation","Élevée","E-mail","Clôturée","2025-05-09","V011"],["REC0284","2025-01-03","CL0009","AG04","Produit défectueux","Faible","Réseaux sociaux","En cours",null,"V016"],["REC0285","2025-06-12","CL0044","AG03","Installation","Urgente","Réseaux sociaux","Clôturée","2025-06-19","V003"],["REC0286","2025-11-26","CL0014","AG04","Installation","Moyenne","E-mail","En attente",null,"V010"],["REC0287","2025-07-26","CL0133","AG03","Retard de livraison","Moyenne","Réseaux sociaux","Clôturée","2025-08-08","V003"],["REC0288","2025-03-02","CL0148","AG06","Demande de remboursement","Élevée","E-mail","Clôturée","2025-03-07","V018"],["REC0289","2025-06-15","CL0024","AG02","Produit défectueux","Faible","E-mail","Clôturée","2025-06-28","V014"],["REC0290","2025-01-15","CL0182","AG05","Installation","Urgente","E-mail","Clôturée","2025-01-22","V005"],["REC0291","2025-08-21","CL0162","AG06","Erreur de facturation","Faible","E-mail","Clôturée","2025-08-25","V012"],["REC0292","2025-10-02","CL0186","AG02","Demande de remboursement","Élevée","E-mail","Clôturée","2025-10-07","V002"],["REC0293","2025-11-18","CL0164","AG01","Installation","Élevée","Téléphone","Clôturée","2025-12-03","V013"],["REC0294","2025-02-24","CL0073","AG02","Erreur de facturation","Élevée","E-mail","Clôturée","2025-03-04","V008"],["REC0295","2025-07-20","CL0126","AG01","Produit défectueux","Moyenne","E-mail","Clôturée","2025-07-31","V001"],["REC0296","2025-12-18","CL0097","AG04","Erreur de facturation","Moyenne","Site web","Clôturée","2025-12-21","V004"],["REC0297","2025-01-06","CL0169","AG02","Installation","Moyenne","Site web","En cours",null,"V002"],["REC0298","2025-06-27","CL0158","AG04","Installation","Moyenne","Téléphone","Clôturée","2025-07-09","V010"],["REC0299","2025-04-09","CL0008","AG05","Installation","Faible","Site web","Clôturée","2025-04-12","V005"],["REC0300","2025-02-28","CL0008","AG02","Erreur de facturation","Faible","Site web","Clôturée","2025-03-12","V002"],["REC0301","2025-05-21","CL0052","AG04","Produit défectueux","Moyenne","Agence","Clôturée","2025-05-26","V010"],["REC0302","2025-08-12","CL0103","AG05","Retard de livraison","Moyenne","Site web","Clôturée","2025-08-26","V017"],["REC0303","2025-07-21","CL0150","AG01","Installation","Moyenne","Agence","En cours",null,"V013"],["REC0304","2025-08-10","CL0109","AG04","Installation","Élevée","Téléphone","En cours",null,"V016"],["REC0305","2025-11-07","CL0110","AG04","Retard de livraison","Moyenne","Agence","Clôturée","2025-11-18","V004"],["REC0306","2025-03-27","CL0131","AG01","Erreur de facturation","Moyenne","Réseaux sociaux","Clôturée","2025-04-10","V013"],["REC0307","2025-06-30","CL0008","AG04","Produit défectueux","Faible","Site web","Clôturée","2025-07-13","V004"],["REC0308","2025-05-06","CL0056","AG01","Information produit","Moyenne","Téléphone","Clôturée","2025-05-12","V001"],["REC0309","2025-06-13","CL0003","AG06","Information produit","Moyenne","E-mail","Clôturée","2025-06-26","V012"],["REC0310","2025-10-15","CL0099","AG01","Erreur de facturation","Moyenne","Site web","Clôturée","2025-10-17","V013"],["REC0311","2025-11-08","CL0020","AG06","Installation","Élevée","Site web","Clôturée","2025-11-21","V012"],["REC0312","2025-06-13","CL0051","AG02","Produit défectueux","Élevée","Téléphone","Clôturée","2025-06-18","V008"],["REC0313","2025-03-05","CL0044","AG04","Installation","Moyenne","Site web","Clôturée","2025-03-15","V004"],["REC0314","2025-01-10","CL0148","AG06","Produit défectueux","Élevée","Téléphone","Clôturée","2025-01-24","V012"],["REC0315","2025-10-01","CL0011","AG05","Erreur de facturation","Moyenne","Site web","Clôturée","2025-10-03","V011"],["REC0316","2025-05-21","CL0193","AG03","Erreur de facturation","Moyenne","Réseaux sociaux","Clôturée","2025-05-27","V009"],["REC0317","2025-01-25","CL0077","AG04","Information produit","Urgente","Site web","Clôturée","2025-02-05","V004"],["REC0318","2025-11-13","CL0008","AG01","Retard de livraison","Faible","Agence","Clôturée","2025-11-15","V007"],["REC0319","2025-04-26","CL0023","AG02","Retard de livraison","Élevée","Téléphone","En cours",null,"V014"],["REC0320","2025-12-19","CL0067","AG01","Produit défectueux","Faible","Site web","En attente",null,"V001"]],"agences":{"AG01":{"nom":"Casablanca Centre","ville":"Casablanca","resp":"Amina El Idrissi"},"AG02":{"nom":"Rabat Agdal","ville":"Rabat","resp":"Youssef Amrani"},"AG03":{"nom":"Marrakech Guéliz","ville":"Marrakech","resp":"Salma Bennani"},"AG04":{"nom":"Tanger Centre","ville":"Tanger","resp":"Omar Alaoui"},"AG05":{"nom":"Fès Ville Nouvelle","ville":"Fès","resp":"Nadia Berrada"},"AG06":{"nom":"Agadir Centre","ville":"Agadir","resp":"Mehdi Chraïbi"}},"commerciaux":{"V001":{"nom":"Hamza Saidi","ag":"AG01","fn":"Conseiller commercial"},"V002":{"nom":"Amine Zerouali","ag":"AG02","fn":"Responsable commercial"},"V003":{"nom":"Salma Lahlou","ag":"AG03","fn":"Responsable commercial"},"V004":{"nom":"Nour Bennani","ag":"AG04","fn":"Responsable commercial"},"V005":{"nom":"Meryem Naciri","ag":"AG05","fn":"Responsable commercial"},"V006":{"nom":"Othmane Idrissi","ag":"AG06","fn":"Conseiller commercial"},"V007":{"nom":"Rania Saidi","ag":"AG01","fn":"Responsable commercial"},"V008":{"nom":"Sofia Mansouri","ag":"AG02","fn":"Responsable commercial"},"V009":{"nom":"Othmane Tazi","ag":"AG03","fn":"Responsable commercial"},"V010":{"nom":"Amine Naciri","ag":"AG04","fn":"Responsable commercial"},"V011":{"nom":"Hamza Fassi","ag":"AG05","fn":"Conseiller commercial"},"V012":{"nom":"Nour Zerouali","ag":"AG06","fn":"Conseiller commercial"},"V013":{"nom":"Khadija Tahiri","ag":"AG01","fn":"Responsable commercial"},"V014":{"nom":"Imane Zerouali","ag":"AG02","fn":"Responsable commercial"},"V015":{"nom":"Yassine Tazi","ag":"AG03","fn":"Conseiller commercial"},"V016":{"nom":"Lina Berrada","ag":"AG04","fn":"Responsable commercial"},"V017":{"nom":"Ilyas Chraïbi","ag":"AG05","fn":"Responsable commercial"},"V018":{"nom":"Hamza Kabbaj","ag":"AG06","fn":"Conseiller commercial"}},"clients":{"CL0001":["Hamza Alaoui","Fès","Professionnel"],"CL0002":["Hamza Kabbaj","Meknès","Nouveau"],"CL0003":["Yassine Bennani","Tanger","Particulier"],"CL0004":["Sara Naciri","Meknès","Professionnel"],"CL0005":["Ilyas Tazi","Casablanca","Nouveau"],"CL0006":["Hajar El Amrani","Tanger","Particulier"],"CL0007":["Khadija Bennani","Agadir","Fidèle"],"CL0008":["Lina Mansouri","Rabat","Particulier"],"CL0009":["Amine Tahiri","Oujda","Professionnel"],"CL0010":["Imane Alaoui","Tanger","Particulier"],"CL0011":["Hamza Chraïbi","Fès","Fidèle"],"CL0012":["Anas Berrada","Tanger","Fidèle"],"CL0013":["Imane Lahlou","Marrakech","Professionnel"],"CL0014":["Lina Chraïbi","Fès","Professionnel"],"CL0015":["Meryem Tahiri","Casablanca","Particulier"],"CL0016":["Khadija Tazi","Rabat","Fidèle"],"CL0017":["Karim Chraïbi","Tétouan","Fidèle"],"CL0018":["Mehdi Naciri","Meknès","Fidèle"],"CL0019":["Ilyas Chraïbi","Oujda","Fidèle"],"CL0020":["Nour Mansouri","Tétouan","Particulier"],"CL0021":["Nour Kabbaj","Marrakech","Nouveau"],"CL0022":["Imane Chraïbi","Kénitra","Nouveau"],"CL0023":["Hajar Mansouri","Casablanca","Particulier"],"CL0024":["Rania Zerouali","Fès","Fidèle"],"CL0025":["Amine Chraïbi","Marrakech","Particulier"],"CL0026":["Hajar Mansouri","Marrakech","Particulier"],"CL0027":["Amine Tahiri","Meknès","Professionnel"],"CL0028":["Anas Zerouali","Marrakech","Particulier"],"CL0029":["Meryem Fassi","Casablanca","Fidèle"],"CL0030":["Mehdi Alaoui","Tanger","Particulier"],"CL0031":["Karim Tahiri","Rabat","Professionnel"],"CL0032":["Karim Mansouri","Marrakech","Nouveau"],"CL0033":["Rania Zerouali","Tanger","Nouveau"],"CL0034":["Anas Fassi","Meknès","Particulier"],"CL0035":["Mehdi Bennani","Agadir","Professionnel"],"CL0036":["Mehdi Alaoui","Rabat","Particulier"],"CL0037":["Imane Saidi","Casablanca","Particulier"],"CL0038":["Mehdi Tazi","Tétouan","Professionnel"],"CL0039":["Ilyas Lahlou","Tétouan","Nouveau"],"CL0040":["Sara Bennani","Rabat","Nouveau"],"CL0041":["Ayoub Chraïbi","Tétouan","Particulier"],"CL0042":["Khadija Naciri","Agadir","Professionnel"],"CL0043":["Sara Mansouri","Tétouan","Nouveau"],"CL0044":["Hajar Fassi","Tanger","Nouveau"],"CL0045":["Hamza Alaoui","Meknès","Particulier"],"CL0046":["Othmane Chraïbi","Tétouan","Professionnel"],"CL0047":["Salma El Amrani","Kénitra","Nouveau"],"CL0048":["Lina Tazi","Kénitra","Nouveau"],"CL0049":["Sara Tazi","Tanger","Particulier"],"CL0050":["Meryem Alaoui","Casablanca","Nouveau"],"CL0051":["Sofia El Amrani","Casablanca","Particulier"],"CL0052":["Imane Lahlou","Rabat","Professionnel"],"CL0053":["Hamza Saidi","Oujda","Particulier"],"CL0054":["Imane Chraïbi","Oujda","Fidèle"],"CL0055":["Sara Kabbaj","Agadir","Fidèle"],"CL0056":["Nour Kabbaj","Fès","Fidèle"],"CL0057":["Yassine Fassi","Oujda","Particulier"],"CL0058":["Rania Idrissi","Meknès","Professionnel"],"CL0059":["Imane Saidi","Tanger","Fidèle"],"CL0060":["Lina Tahiri","Meknès","Particulier"],"CL0061":["Rania Tazi","Rabat","Fidèle"],"CL0062":["Hamza Naciri","Meknès","Fidèle"],"CL0063":["Ghita Idrissi","Agadir","Fidèle"],"CL0064":["Karim Tazi","Casablanca","Nouveau"],"CL0065":["Salma Alaoui","Agadir","Fidèle"],"CL0066":["Lina Mansouri","Kénitra","Particulier"],"CL0067":["Imane Saidi","Marrakech","Particulier"],"CL0068":["Ilyas Mansouri","Marrakech","Professionnel"],"CL0069":["Amine Berrada","Casablanca","Professionnel"],"CL0070":["Mehdi Kabbaj","Rabat","Nouveau"],"CL0071":["Nour Saidi","Tanger","Professionnel"],"CL0072":["Yassine El Amrani","Agadir","Professionnel"],"CL0073":["Othmane Zerouali","Rabat","Particulier"],"CL0074":["Mehdi Idrissi","Tétouan","Fidèle"],"CL0075":["Mehdi Alaoui","Tanger","Fidèle"],"CL0076":["Imane Zerouali","Fès","Nouveau"],"CL0077":["Rania Berrada","Casablanca","Fidèle"],"CL0078":["Ilyas Tazi","Casablanca","Nouveau"],"CL0079":["Meryem Chraïbi","Oujda","Particulier"],"CL0080":["Ilyas Idrissi","Fès","Nouveau"],"CL0081":["Sofia Saidi","Meknès","Professionnel"],"CL0082":["Ayoub Bennani","Agadir","Fidèle"],"CL0083":["Hamza Naciri","Fès","Fidèle"],"CL0084":["Ayoub Berrada","Kénitra","Professionnel"],"CL0085":["Ayoub Kabbaj","Kénitra","Professionnel"],"CL0086":["Ilyas Tazi","Kénitra","Particulier"],"CL0087":["Amine Idrissi","Kénitra","Fidèle"],"CL0088":["Lina Fassi","Tanger","Nouveau"],"CL0089":["Othmane Kabbaj","Rabat","Fidèle"],"CL0090":["Mehdi Kabbaj","Fès","Professionnel"],"CL0091":["Yassine Alaoui","Tanger","Particulier"],"CL0092":["Ayoub Saidi","Oujda","Nouveau"],"CL0093":["Khadija Idrissi","Marrakech","Particulier"],"CL0094":["Ayoub Idrissi","Marrakech","Nouveau"],"CL0095":["Rania Idrissi","Rabat","Professionnel"],"CL0096":["Sofia Mansouri","Oujda","Nouveau"],"CL0097":["Sofia Chraïbi","Meknès","Professionnel"],"CL0098":["Karim Fassi","Fès","Fidèle"],"CL0099":["Karim Kabbaj","Tanger","Nouveau"],"CL0100":["Amine Idrissi","Fès","Fidèle"],"CL0101":["Imane El Amrani","Marrakech","Nouveau"],"CL0102":["Nour Naciri","Tanger","Nouveau"],"CL0103":["Meryem Mansouri","Tétouan","Particulier"],"CL0104":["Ayoub Chraïbi","Oujda","Nouveau"],"CL0105":["Yassine Berrada","Fès","Nouveau"],"CL0106":["Rania Zerouali","Oujda","Nouveau"],"CL0107":["Hajar Chraïbi","Tétouan","Nouveau"],"CL0108":["Khadija Naciri","Marrakech","Professionnel"],"CL0109":["Rania Alaoui","Kénitra","Particulier"],"CL0110":["Ayoub El Amrani","Tétouan","Particulier"],"CL0111":["Khadija Berrada","Tanger","Fidèle"],"CL0112":["Khadija Tazi","Kénitra","Particulier"],"CL0113":["Yassine Naciri","Meknès","Fidèle"],"CL0114":["Imane Zerouali","Casablanca","Professionnel"],"CL0115":["Yassine Lahlou","Marrakech","Professionnel"],"CL0116":["Hamza Lahlou","Tanger","Fidèle"],"CL0117":["Othmane Lahlou","Oujda","Professionnel"],"CL0118":["Hamza Lahlou","Casablanca","Nouveau"],"CL0119":["Sara Bennani","Oujda","Professionnel"],"CL0120":["Amine Tahiri","Oujda","Particulier"],"CL0121":["Rania Chraïbi","Agadir","Fidèle"],"CL0122":["Ayoub Tahiri","Tétouan","Nouveau"],"CL0123":["Lina Naciri","Marrakech","Professionnel"],"CL0124":["Sofia Kabbaj","Fès","Nouveau"],"CL0125":["Ayoub Tahiri","Oujda","Fidèle"],"CL0126":["Imane Tazi","Tétouan","Nouveau"],"CL0127":["Ghita Kabbaj","Kénitra","Particulier"],"CL0128":["Meryem El Amrani","Tétouan","Fidèle"],"CL0129":["Meryem Tazi","Oujda","Particulier"],"CL0130":["Sara Bennani","Tanger","Nouveau"],"CL0131":["Mehdi Naciri","Tétouan","Nouveau"],"CL0132":["Yassine Bennani","Fès","Nouveau"],"CL0133":["Mehdi Tazi","Oujda","Nouveau"],"CL0134":["Sofia Berrada","Kénitra","Fidèle"],"CL0135":["Lina Tazi","Fès","Professionnel"],"CL0136":["Sara Berrada","Rabat","Professionnel"],"CL0137":["Sara Naciri","Tétouan","Fidèle"],"CL0138":["Sara Tazi","Tanger","Professionnel"],"CL0139":["Yassine Naciri","Meknès","Fidèle"],"CL0140":["Salma Mansouri","Fès","Nouveau"],"CL0141":["Yassine Lahlou","Fès","Nouveau"],"CL0142":["Meryem El Amrani","Casablanca","Nouveau"],"CL0143":["Imane Chraïbi","Tétouan","Particulier"],"CL0144":["Nour Zerouali","Oujda","Particulier"],"CL0145":["Hamza Mansouri","Kénitra","Professionnel"],"CL0146":["Khadija Fassi","Tétouan","Nouveau"],"CL0147":["Ilyas Lahlou","Casablanca","Particulier"],"CL0148":["Sara Tazi","Rabat","Professionnel"],"CL0149":["Rania Bennani","Marrakech","Nouveau"],"CL0150":["Ghita Fassi","Fès","Professionnel"],"CL0151":["Amine Naciri","Tétouan","Professionnel"],"CL0152":["Ilyas Kabbaj","Tanger","Particulier"],"CL0153":["Mehdi Kabbaj","Marrakech","Professionnel"],"CL0154":["Salma El Amrani","Fès","Fidèle"],"CL0155":["Hamza Fassi","Fès","Fidèle"],"CL0156":["Rania Fassi","Tétouan","Particulier"],"CL0157":["Meryem Lahlou","Fès","Particulier"],"CL0158":["Ilyas Lahlou","Casablanca","Fidèle"],"CL0159":["Salma Zerouali","Marrakech","Nouveau"],"CL0160":["Othmane Lahlou","Kénitra","Nouveau"],"CL0161":["Karim Berrada","Kénitra","Fidèle"],"CL0162":["Hamza Tahiri","Marrakech","Nouveau"],"CL0163":["Karim Tazi","Kénitra","Particulier"],"CL0164":["Imane Berrada","Fès","Particulier"],"CL0165":["Sofia Tahiri","Casablanca","Nouveau"],"CL0166":["Salma Idrissi","Meknès","Nouveau"],"CL0167":["Lina Zerouali","Casablanca","Fidèle"],"CL0168":["Nour Saidi","Fès","Nouveau"],"CL0169":["Yassine Kabbaj","Oujda","Professionnel"],"CL0170":["Rania Alaoui","Meknès","Particulier"],"CL0171":["Hamza Fassi","Rabat","Professionnel"],"CL0172":["Amine Mansouri","Fès","Nouveau"],"CL0173":["Mehdi Fassi","Meknès","Nouveau"],"CL0174":["Ghita Mansouri","Marrakech","Fidèle"],"CL0175":["Meryem Saidi","Meknès","Particulier"],"CL0176":["Amine Tahiri","Oujda","Nouveau"],"CL0177":["Lina Mansouri","Tétouan","Fidèle"],"CL0178":["Rania Chraïbi","Tétouan","Professionnel"],"CL0179":["Mehdi Lahlou","Kénitra","Nouveau"],"CL0180":["Meryem Naciri","Tétouan","Nouveau"],"CL0181":["Nour Fassi","Casablanca","Fidèle"],"CL0182":["Lina Bennani","Meknès","Particulier"],"CL0183":["Nour Chraïbi","Marrakech","Nouveau"],"CL0184":["Meryem Lahlou","Kénitra","Particulier"],"CL0185":["Rania Chraïbi","Agadir","Nouveau"],"CL0186":["Salma Lahlou","Rabat","Fidèle"],"CL0187":["Imane Chraïbi","Rabat","Particulier"],"CL0188":["Othmane Naciri","Fès","Particulier"],"CL0189":["Salma Tazi","Agadir","Nouveau"],"CL0190":["Mehdi Mansouri","Kénitra","Professionnel"],"CL0191":["Othmane Bennani","Oujda","Professionnel"],"CL0192":["Ilyas El Amrani","Tanger","Fidèle"],"CL0193":["Hajar Kabbaj","Casablanca","Fidèle"],"CL0194":["Rania El Amrani","Rabat","Fidèle"],"CL0195":["Amine Kabbaj","Kénitra","Nouveau"],"CL0196":["Sara Chraïbi","Tétouan","Professionnel"],"CL0197":["Ilyas Berrada","Oujda","Fidèle"],"CL0198":["Khadija Tazi","Casablanca","Particulier"],"CL0199":["Karim Tahiri","Fès","Fidèle"],"CL0200":["Sara Lahlou","Fès","Professionnel"]}};
+const SLA = {"Urgente":2,"Élevée":5,"Moyenne":10,"Faible":15};
+const PRIOS = ["Urgente","Élevée","Moyenne","Faible"];
+const STATUTS = ["Nouvelle","En cours","En attente","Clôturée"];
+const MOTIFS = ["Retard de livraison","Produit défectueux","Installation","Erreur de facturation","Demande de remboursement","Information produit"];
+const CANAUX = ["Agence","Téléphone","E-mail","Site web","Réseaux sociaux"];
+const SERVICES = ["Logistique","SAV technique","Facturation","Service client","Commercial"];
+const MOTIF_SERVICE = {"Retard de livraison":"Logistique","Produit défectueux":"SAV technique","Installation":"SAV technique","Erreur de facturation":"Facturation","Demande de remboursement":"Facturation","Information produit":"Service client"};
+const REF_DATE_IMPORT = "2025-12-31";
+const LS_KEY = "mm_reclamations_local_v1";
+
+/* ---------- Données de base (dataset importé) ---------- */
+function clientNom(id){ const c = DATA.clients[id]; return c ? c[0] : (id||"—"); }
+const BASE = {};
+for (const r of DATA.rec){
+  const [id,d,cl,ag,motif,prio,canal,statut,dc,v] = r;
+  const h = [{t:d, a:"Réclamation reçue via « "+canal+" » (import du dataset)", by:"Import"}];
+  if (dc) h.push({t:dc, a:"Réclamation clôturée", by:"Import"});
+  BASE[id] = {id, dateReception:d, clientId:cl, clientNom:clientNom(cl), agenceId:ag, motif, priorite:prio, canal, statut,
+    dateCloture:dc, commercialId:v, service:MOTIF_SERVICE[motif], description:"", source:"import", historique:h};
+}
+
+/* ---------- Stockage : base partagée (db) + repli local ---------- */
+let dbMap = {}, localMap = {};
+let db = null, dbState = "pending", dbWritable = null;
+try { localMap = JSON.parse(localStorage.getItem(LS_KEY) || "{}") || {}; } catch(e){ localMap = {}; }
+function saveLocal(){ try { localStorage.setItem(LS_KEY, JSON.stringify(localMap)); } catch(e){} }
+function allRecords(){
+  const m = Object.assign({}, BASE, dbMap, localMap);
+  return Object.values(m).sort((a,b)=> (b.dateReception||"").localeCompare(a.dateReception||"") || b.id.localeCompare(a.id));
+}
+function getRec(id){ return localMap[id] || dbMap[id] || BASE[id] || null; }
+async function saveRec(rec){
+  rec = JSON.parse(JSON.stringify(rec));
+  if (db && dbWritable !== false){
+    try {
+      await db.collection("reclamations").doc(rec.id).set(rec);
+      dbMap[rec.id] = rec; if (localMap[rec.id]) { delete localMap[rec.id]; saveLocal(); }
+      return "db";
+    } catch(e){
+      if (e && (e.code === "invalid_argument" || e.code === "not_granted" || e.code === "revoked" || e.code==="capability_disabled")) { dbWritable = false; renderMode(); }
+      else if (e && e.code === "quota_exceeded") { toast("Base en ligne pleine : enregistrement local."); }
+    }
+  }
+  localMap[rec.id] = rec; saveLocal(); return "local";
+}
+function renderMode(){
+  const el = document.getElementById("mode");
+  let cls="", txt="";
+  if (db && dbState==="live" && dbWritable!==false){ cls="on"; txt="Données partagées en ligne"; }
+  else if (db && dbState==="live"){ cls="local"; txt="Lecture en ligne · vos saisies restent dans ce navigateur"; }
+  else if (dbState==="pending"){ cls=""; txt="Connexion…"; }
+  else { cls="local"; txt="Mode démonstration · données dans ce navigateur"; }
+  el.innerHTML = '<span class="dot '+cls+'"></span><span>'+txt+'</span>';
+}
+async function initDb(){
+  const timer = setTimeout(()=>{ if (dbState==="pending"){ dbState="off"; renderMode(); } }, 10000);
+  try {
+    if (!window.claude || typeof window.claude.use !== "function"){ dbState="off"; clearTimeout(timer); renderMode(); return; }
+    db = await window.claude.use("db");
+    if (!db){ dbState="off"; clearTimeout(timer); renderMode(); return; }
+    try { const u = await window.claude.use("user"); if (u && typeof u.can==="function"){ const c = await Promise.resolve(u.can("data.write")); if (c===false) dbWritable=false; else if (c===true) dbWritable=true; } } catch(e){}
+    db.collection("reclamations").onSnapshot(snap=>{
+      const m = {}; snap.docs.forEach(d=>{ const v=d.data(); if (v && v.id) m[d.id]=v; });
+      dbMap = m;
+      if (!snap.metadata.fromCache){ clearTimeout(timer); }
+      dbState="live"; renderMode(); rerender(true);
+    }, err=>{ clearTimeout(timer); dbState="off"; db=null; renderMode(); });
+  } catch(e){ clearTimeout(timer); dbState="off"; renderMode(); }
+}
+
+/* ---------- IA : Claude si disponible, sinon moteur de règles ---------- */
+let sample = null, sampleState = "pending";
+async function initAI(){
+  try {
+    if (!window.claude || typeof window.claude.use !== "function"){ sampleState="off"; return; }
+    sample = await window.claude.use("sample");
+    sampleState = sample ? "on" : "off";
+  } catch(e){ sampleState="off"; }
+  rerender(true);
+}
+function aiLabel(){ return sampleState==="on" ? "IA générative (Claude)" : "Assistant à règles (mode hors-ligne)"; }
+const norm = s => (s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"");
+function ruleClassify(text){
+  const t = norm(text);
+  const has = (...k)=>k.some(w=>t.includes(w));
+  let motif = "Information produit";
+  if (has("rembours","annul","retourner","retour du","restitu")) motif="Demande de remboursement";
+  else if (has("factur","montant","preleve","prelevement","debite","double paiement","paye deux","tva")) motif="Erreur de facturation";
+  else if (has("install","monter","montage","branch","technicien","raccord","fixation")) motif="Installation";
+  else if (has("fumee","brul","odeur","etincel","surchauf","court-circuit","panne","casse","defect","ne fonctionne","marche pas","ne s'allume","ne demarre","bruit","fuite","ecran noir","abime","endommag")) motif="Produit défectueux";
+  else if (has("livr","retard","colis","pas recu","jamais recu","transporteur","commande")) motif="Retard de livraison";
+  let prio = "Moyenne";
+  if (has("urgent","dangereux","danger","fumee","brul","incendie","electrocut","avocat","plainte","inadmissible","scandale")) prio="Urgente";
+  else if (has("depuis","toujours pas","encore","plusieurs fois","relance","3 semaines","deux semaines","2 semaines","mois")) prio="Élevée";
+  else if (motif==="Information produit") prio="Faible";
+  const clean = (text||"").trim().replace(/\s+/g," ");
+  const resume = clean.length>160 ? clean.slice(0,157)+"…" : clean;
+  return {motif, priorite:prio, service:MOTIF_SERVICE[motif], resume: resume || "—",
+    justification:"Classement par mots-clés (moteur de règles local). À vérifier par l'agent."};
+}
+const REPLY_CORE = {
+  "Retard de livraison":"Nous avons contacté notre service logistique afin de localiser votre commande et de vous communiquer une date de livraison ferme sous 48 heures.",
+  "Produit défectueux":"Notre service après-vente technique va prendre contact avec vous pour organiser un diagnostic et, si le défaut est confirmé, la réparation ou l'échange du produit dans le cadre de la garantie.",
+  "Installation":"Un technicien de notre équipe d'installation vous appellera pour convenir d'un créneau d'intervention à votre convenance.",
+  "Erreur de facturation":"Notre service facturation vérifie actuellement votre dossier. Si une erreur est confirmée, une facture rectificative et, le cas échéant, un avoir vous seront adressés.",
+  "Demande de remboursement":"Votre demande a été transmise à notre service facturation, qui vérifie son éligibilité. Nous vous confirmerons la suite donnée et le délai de remboursement.",
+  "Information produit":"Un conseiller va vous transmettre les informations demandées sur le produit concerné."
+};
+function ruleReply(r){
+  return "Bonjour "+(r.clientNom||"")+",\n\nNous vous remercions de nous avoir contactés et vous présentons nos excuses pour la gêne occasionnée.\n\n"
+    + (REPLY_CORE[r.motif]||REPLY_CORE["Information produit"])
+    + "\n\nVotre réclamation est enregistrée sous la référence "+r.id+". Le délai de traitement visé pour une priorité « "+r.priorite+" » est de "+SLA[r.priorite]+" jour(s).\n\nCordialement,\nLe service clientèle MAROCMARKET";
+}
+function sanitizeClass(o, fallback){
+  const out = Object.assign({}, fallback);
+  if (o && typeof o==="object"){
+    if (MOTIFS.includes(o.motif)) out.motif=o.motif;
+    if (PRIOS.includes(o.priorite)) out.priorite=o.priorite;
+    if (SERVICES.includes(o.service)) out.service=o.service; else out.service=MOTIF_SERVICE[out.motif];
+    if (typeof o.resume==="string" && o.resume.trim()) out.resume=o.resume.trim().slice(0,400);
+    if (typeof o.justification==="string" && o.justification.trim()) out.justification=o.justification.trim().slice(0,400);
+  }
+  return out;
+}
+async function aiClassify(text, ctx){
+  const fb = ruleClassify(text);
+  if (sampleState!=="on") return Object.assign(fb,{engine:"règles"});
+  const prompt = `Tu es l'assistant du service clientèle de MAROCMARKET, distributeur marocain d'électroménager et d'électronique.
+Analyse la réclamation client ci-dessous et classe-la.
+Motifs autorisés (choisis exactement un) : ${MOTIFS.join(" | ")}.
+Priorités autorisées : Urgente (sécurité, menace juridique, client très mécontent), Élevée (problème qui dure ou relances), Moyenne (cas standard), Faible (simple demande d'information).
+Services autorisés : ${SERVICES.join(" | ")}.
+Contexte : canal = ${ctx.canal||"?"} ; agence = ${ctx.agence||"?"}.
+Réclamation : """${(text||"").slice(0,3000)}"""
+Réponds UNIQUEMENT en JSON : {"motif":"...","priorite":"...","service":"...","resume":"résumé factuel en 1 phrase, max 30 mots","justification":"pourquoi ce classement, max 25 mots"}`;
+  try { const v = await sample.json(prompt, {modelTier:"quick"}); return Object.assign(sanitizeClass(v, fb), {engine:"Claude"}); }
+  catch(e){ if (e && e.code==="not_granted"){ sampleState="off"; } return Object.assign(fb,{engine:"règles", note: e && e.code==="rate_limited" ? "IA momentanément limitée, repli sur les règles." : ""}); }
+}
+async function aiReply(r){
+  if (sampleState!=="on") return {text:ruleReply(r), engine:"règles"};
+  const ag = DATA.agences[r.agenceId];
+  const prompt = `Tu rédiges, pour un agent du service clientèle de MAROCMARKET (distributeur marocain d'électroménager et d'électronique), une proposition de réponse écrite au client. L'agent la relira et la validera avant tout envoi.
+Règles : ton professionnel, empathique et concis (120 mots max) ; en français ; vouvoiement ; ne promets ni montant, ni remboursement, ni date précise qui ne figurent pas dans les données ; mentionne la référence du dossier ; signe "Le service clientèle MAROCMARKET".
+Données du dossier :
+- Référence : ${r.id}
+- Client : ${r.clientNom}
+- Agence : ${ag?ag.nom:r.agenceId}
+- Motif : ${r.motif} ; priorité : ${r.priorite} ; statut : ${r.statut}
+- Service en charge : ${r.service}
+- Description du client : ${r.description ? r.description.slice(0,2000) : "(non renseignée)"}
+Réponds uniquement avec le texte de la réponse.`;
+  try { const o = await sample(prompt, {modelTier:"quick"}); return {text:(o.text||"").trim()||ruleReply(r), engine:"Claude"}; }
+  catch(e){ if (e && e.code==="not_granted") sampleState="off"; return {text:ruleReply(r), engine:"règles"}; }
+}
+
+/* ---------- Calculs ---------- */
+const DAY = 86400000;
+const todayISO = () => new Date().toISOString().slice(0,10);
+function ddiff(a,b){ return Math.round((new Date(b+"T00:00:00Z") - new Date(a.slice(0,10)+"T00:00:00Z"))/DAY); }
+function age(r){ const end = r.dateCloture ? r.dateCloture.slice(0,10) : (r.source==="import" ? REF_DATE_IMPORT : todayISO()); return Math.max(0, ddiff(r.dateReception, end)); }
+function isLate(r){ return age(r) > SLA[r.priorite]; }
+function isOpen(r){ return r.statut!=="Clôturée"; }
+function respNom(r){ if (r.commercialId && DATA.commerciaux[r.commercialId]) return DATA.commerciaux[r.commercialId].nom; if (r.commercialId==="RESP" && DATA.agences[r.agenceId]) return DATA.agences[r.agenceId].resp; return "Non affecté"; }
+function agNom(id){ return DATA.agences[id] ? DATA.agences[id].nom : id; }
+function fmtD(s){ if(!s) return "—"; const d=new Date(s.length>10?s:s+"T00:00:00"); return d.toLocaleDateString("fr-FR",{day:"2-digit",month:"2-digit",year:"numeric"}); }
+function fmtDT(s){ if(!s) return "—"; if (s.length<=10) return fmtD(s); const d=new Date(s); return d.toLocaleDateString("fr-FR",{day:"2-digit",month:"2-digit",year:"numeric"})+" "+d.toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"}); }
+function esc(s){ return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+const pct = (a,b)=> b ? Math.round(a*1000/b)/10 : 0;
+const fr = n => String(n).replace(".",",");
+function pill(cls,txt){ return '<span class="pill '+cls+'">'+esc(txt)+'</span>'; }
+const PICON = {"Urgente":"▲▲","Élevée":"▲","Moyenne":"■","Faible":"▽"};
+const SICON = {"Nouvelle":"●","En cours":"→","En attente":"‖","Clôturée":"✓"};
+function pPill(p){ return pill("p-"+p, PICON[p]+" "+p); }
+function statusPill(s){ const map={"Nouvelle":"var(--info-bg);color:var(--info)","En cours":"var(--warn-bg);color:var(--warn)","En attente":"var(--serious-bg);color:var(--serious)","Clôturée":"var(--good-bg);color:var(--good)"}; return '<span class="pill" style="background:'+map[s]+'">'+SICON[s]+' '+esc(s)+'</span>'; }
+function stats(recs){
+  const total=recs.length, open=recs.filter(isOpen), closed=recs.filter(r=>!isOpen(r));
+  const late=recs.filter(isLate);
+  const avgClose = closed.length ? closed.reduce((s,r)=>s+age(r),0)/closed.length : 0;
+  const count=(arr,key)=>{ const m={}; arr.forEach(r=>{ const k=typeof key==="function"?key(r):r[key]; m[k]=(m[k]||0)+1; }); return m; };
+  const avgBy=(arr,key)=>{ const s={},n={}; arr.forEach(r=>{ const k=r[key]; s[k]=(s[k]||0)+age(r); n[k]=(n[k]||0)+1; }); const o={}; for(const k in s) o[k]=Math.round(s[k]*10/n[k])/10; return o; };
+  const lateBy=(arr,key)=>{ const m={},n={}; arr.forEach(r=>{ const k=r[key]; n[k]=(n[k]||0)+1; if(isLate(r)) m[k]=(m[k]||0)+1; }); const o={}; for(const k in n) o[k]=pct(m[k]||0,n[k]); return o; };
+  return {total, open:open.length, closed:closed.length, late:late.length, latePct:pct(late.length,total), closeRate:pct(closed.length,total),
+    avgClose:Math.round(avgClose*10)/10, urgentOpen:open.filter(r=>r.priorite==="Urgente"||r.priorite==="Élevée").length,
+    byMotif:count(recs,"motif"), byStatut:count(recs,"statut"), byCanal:count(recs,"canal"), byPrio:count(recs,"priorite"),
+    openByAgence:count(open,r=>agNom(r.agenceId)), byAgence:count(recs,r=>agNom(r.agenceId)),
+    delaiByMotif:avgBy(closed,"motif"), latePctByMotif:lateBy(recs,"motif"),
+    byMonth:count(recs,r=>r.dateReception.slice(0,7)), openByService:count(open,"service")};
+}
+
+/* ---------- Rendu ---------- */
+const V = document.getElementById("view");
+let route = "tableau-de-bord", listState = {q:"",statut:"",prio:"",agence:"",motif:"",service:"",late:false,page:0}, formDraft=null, editing=false;
+function toast(t){ const el=document.getElementById("toast"); el.textContent=t; el.style.display="block"; clearTimeout(el._t); el._t=setTimeout(()=>el.style.display="none",2600); }
+function bars(obj, opts={}){
+  const ent = Object.entries(obj).sort((a,b)=> opts.order ? opts.order.indexOf(a[0])-opts.order.indexOf(b[0]) : b[1]-a[1]);
+  const max = Math.max(1,...ent.map(e=>e[1]));
+  return '<div class="bars">'+ent.map(([k,v])=>'<div class="brow" data-tip="'+esc(k)+' : '+fr(v)+(opts.unit||"")+'"><span class="bl">'+esc(k)+'</span><span class="track"><span class="fill" style="display:block;width:'+(v/max*100)+'%"></span></span><span class="bv">'+fr(v)+(opts.unit||"")+'</span></div>').join("")+'</div>';
+}
+function monthCols(obj){
+  const keys = Object.keys(obj).sort(); const max=Math.max(1,...Object.values(obj));
+  const MN=["janv","févr","mars","avr","mai","juin","juil","août","sept","oct","nov","déc"];
+  const lab=k=>MN[+k.slice(5,7)-1]+(keys.some(x=>x.slice(0,4)!==keys[0].slice(0,4))?" "+k.slice(2,4):"");
+  return '<div class="cols">'+keys.map(k=>'<div class="col" data-tip="'+lab(k)+' '+k.slice(0,4)+' : '+obj[k]+' réclamation(s)"><div class="f" style="height:'+(obj[k]/max*100)+'%"></div></div>').join("")+'</div><div class="colx">'+keys.map(k=>'<span>'+lab(k)+'</span>').join("")+'</div>';
+}
+function viewDashboard(){
+  const recs = allRecords(), s = stats(recs);
+  const worstAg = Object.entries(s.openByAgence).sort((a,b)=>b[1]-a[1])[0]||["—",0];
+  V.innerHTML = `
+  <h1>Tableau de bord des réclamations</h1>
+  <p class="sub">Suivi du traitement des réclamations clients : volumes, délais, respect des engagements de service (SLA) et répartition par agence et par motif.</p>
+  <div class="grid kpis">
+    <div class="card kpi"><div class="lbl">Réclamations enregistrées</div><div class="val">${s.total}</div><div class="hint">Dataset 2025 + saisies</div></div>
+    <div class="card kpi"><div class="lbl">Dossiers ouverts</div><div class="val">${s.open}</div><div class="hint">Nouvelle, en cours ou en attente</div></div>
+    <div class="card kpi"><div class="lbl">Taux de clôture</div><div class="val">${fr(s.closeRate)} %</div><div class="hint">${s.closed} dossiers clôturés</div></div>
+    <div class="card kpi"><div class="lbl">Délai moyen de traitement</div><div class="val">${String(s.avgClose).replace(".",",")} j</div><div class="hint">Sur les dossiers clôturés</div></div>
+    <div class="card kpi"><div class="lbl">Hors délai (SLA)</div><div class="val" style="color:var(--crit)">${String(s.latePct).replace(".",",")} %</div><div class="hint">${s.late} dossiers au-delà du délai cible</div></div>
+    <div class="card kpi"><div class="lbl">Priorité haute ouverts</div><div class="val">${s.urgentOpen}</div><div class="hint">Urgente + élevée, non clôturés</div></div>
+  </div>
+  <div class="card" style="margin-bottom:14px">
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:space-between">
+      <div><h2 style="margin:0">Synthèse pour la direction</h2><div class="muted" style="font-size:12.5px">Analyse générée à partir des indicateurs ci-dessous · ${aiLabel()}</div></div>
+      <button class="btn ai" id="btnSynth">✨ Générer la synthèse</button>
+    </div>
+    <div id="synthOut" class="synth" style="margin-top:10px"></div>
+  </div>
+  <div class="grid two">
+    <div class="card"><h2>Réclamations par motif</h2>${bars(s.byMotif)}</div>
+    <div class="card"><h2>Dossiers ouverts par agence</h2>${bars(s.openByAgence)}<div class="legend">Agence la plus chargée : ${esc(worstAg[0])} (${worstAg[1]} dossiers ouverts)</div></div>
+    <div class="card"><h2>Délai moyen de clôture par motif (jours)</h2>${bars(s.delaiByMotif,{unit:" j"})}</div>
+    <div class="card"><h2>Part hors délai par motif</h2>${bars(s.latePctByMotif,{unit:" %"})}<div class="legend">Délais cibles : Urgente 2 j · Élevée 5 j · Moyenne 10 j · Faible 15 j</div></div>
+    <div class="card"><h2>Répartition par statut</h2>${bars(s.byStatut,{order:STATUTS})}</div>
+    <div class="card"><h2>Canal de réception</h2>${bars(s.byCanal)}</div>
+    <div class="card full" style="grid-column:1/-1"><h2>Évolution mensuelle des réclamations reçues</h2>${monthCols(s.byMonth)}</div>
+  </div>
+  <p class="foot">Pour les dossiers importés encore ouverts, l'ancienneté est calculée au 31/12/2025, fin de la période du dataset.</p>`;
+  document.getElementById("btnSynth").onclick = genSynth;
+  if (lastSynth) document.getElementById("synthOut").textContent = lastSynth;
+}
+let lastSynth = "";
+function ruleSynth(s){
+  const top = (o)=>Object.entries(o).sort((a,b)=>b[1]-a[1]);
+  const m=top(s.byMotif), ag=top(s.openByAgence), lm=top(s.latePctByMotif), dm=top(s.delaiByMotif);
+  return `Situation : ${s.total} réclamations, dont ${s.open} encore ouvertes (taux de clôture ${fr(s.closeRate)} %). Délai moyen de traitement : ${fr(s.avgClose)} jours. ${fr(s.latePct)} % des dossiers dépassent le délai cible.
+
+Points d'attention :
+• Premier motif : « ${m[0][0]} » (${m[0][1]} dossiers), suivi de « ${m[1][0]} » (${m[1][1]}).
+• Agence la plus chargée en dossiers ouverts : ${ag[0]?ag[0][0]:"—"} (${ag[0]?ag[0][1]:0}).
+• Motif le plus souvent hors délai : « ${lm[0][0]} » (${fr(lm[0][1])} %). Délai le plus long : « ${dm[0][0]} » (${fr(dm[0][1])} j).
+• ${s.urgentOpen} dossiers de priorité urgente ou élevée restent ouverts.
+
+Recommandations :
+1. Traiter en priorité le stock de dossiers urgents et élevés, avec un point quotidien.
+2. Mettre en place une alerte automatique avant dépassement du délai cible.
+3. Analyser les causes racines du motif « ${m[0][0]} » avec le service concerné.
+4. Rééquilibrer la charge vers l'agence ${ag[0]?ag[0][0]:""} ou renforcer son équipe.
+
+(Synthèse produite par règles automatiques — à valider par le responsable.)`;
+}
+async function genSynth(){
+  const b=document.getElementById("btnSynth"), out=document.getElementById("synthOut");
+  const s = stats(allRecords());
+  b.disabled=true; b.innerHTML='<span class="spin"></span> Analyse en cours…';
+  let text="";
+  if (sampleState==="on"){
+    const payload = JSON.stringify({total:s.total,ouverts:s.open,taux_cloture_pct:s.closeRate,delai_moyen_j:s.avgClose,hors_delai_pct:s.latePct,priorite_haute_ouverts:s.urgentOpen,
+      par_motif:s.byMotif,ouverts_par_agence:s.openByAgence,delai_moyen_par_motif_j:s.delaiByMotif,hors_delai_pct_par_motif:s.latePctByMotif,par_canal:s.byCanal,par_statut:s.byStatut,par_mois:s.byMonth,
+      sla_jours:SLA});
+    const prompt = `Tu es analyste pour la direction générale de MAROCMARKET (distributeur marocain d'électroménager et d'électronique, 6 agences). Voici les indicateurs du service réclamations (JSON) :
+${payload}
+Rédige en français une synthèse pour le comité de direction, en texte brut sans markdown (pas de #, pas de **), 220 mots maximum, avec exactement ces trois parties titrées : "Situation", "Points d'attention", "Recommandations" (3 à 4 actions concrètes, numérotées).
+Appuie chaque constat sur un chiffre du JSON. N'invente aucune donnée absente (pas de causes non mesurées : formule-les comme hypothèses à vérifier). Termine par une ligne : "À valider par le responsable avant diffusion."`;
+    try { const o = await sample(prompt,{modelTier:"default", onText:({text})=>{ out.textContent=text; }}); text=(o.text||"").trim(); }
+    catch(e){ if (e && e.code==="not_granted") sampleState="off"; text = ruleSynth(s); }
+  } else text = ruleSynth(s);
+  lastSynth = text; out.textContent = text;
+  b.disabled=false; b.innerHTML="✨ Régénérer la synthèse";
+}
+function filtered(){
+  const L=listState, q=norm(L.q);
+  return allRecords().filter(r=>
+    (!L.statut||r.statut===L.statut)&&(!L.prio||r.priorite===L.prio)&&(!L.agence||r.agenceId===L.agence)&&(!L.motif||r.motif===L.motif)&&(!L.service||r.service===L.service)&&(!L.late||(isLate(r)&&isOpen(r)))&&
+    (!q || norm([r.id,r.clientNom,r.clientId,r.description,respNom(r),agNom(r.agenceId)].join(" ")).includes(q)));
+}
+function opts(arr, sel, all){ return (all?'<option value="">'+all+'</option>':'')+arr.map(a=>{ const [v,l]=Array.isArray(a)?a:[a,a]; return '<option value="'+esc(v)+'"'+(v===sel?" selected":"")+'>'+esc(l)+'</option>'; }).join(""); }
+const AGOPTS = ()=>Object.entries(DATA.agences).map(([k,v])=>[k,v.nom]);
+function viewList(){
+  const L=listState;
+  V.innerHTML = `
+  <h1>Réclamations</h1>
+  <p class="sub">Liste de toutes les demandes enregistrées. Cliquez sur une ligne pour consulter le dossier et faire avancer son traitement.</p>
+  <div class="toolbar">
+    <input type="search" id="fq" placeholder="Rechercher : référence, client, responsable, texte…" value="${esc(L.q)}">
+    <select id="fs">${opts(STATUTS,L.statut,"Tous statuts")}</select>
+    <select id="fp">${opts(PRIOS,L.prio,"Toutes priorités")}</select>
+    <select id="fa">${opts(AGOPTS(),L.agence,"Toutes agences")}</select>
+    <select id="fm">${opts(MOTIFS,L.motif,"Tous motifs")}</select>
+    <select id="fv">${opts(SERVICES,L.service,"Tous services")}</select>
+    <label style="display:flex;gap:6px;align-items:center;font-size:13px"><input type="checkbox" id="fl" ${L.late?"checked":""}> Ouverts hors délai</label>
+    <button class="btn sm" id="freset">Réinitialiser</button>
+  </div>
+  <div id="tbl"></div>`;
+  const bind=(id,k,ev="change")=>document.getElementById(id).addEventListener(ev,e=>{ L[k]= e.target.type==="checkbox"?e.target.checked:e.target.value; L.page=0; drawTable(); });
+  bind("fq","q","input"); bind("fs","statut"); bind("fp","prio"); bind("fa","agence"); bind("fm","motif"); bind("fv","service"); bind("fl","late");
+  document.getElementById("freset").onclick=()=>{ listState={q:"",statut:"",prio:"",agence:"",motif:"",service:"",late:false,page:0}; viewList(); };
+  drawTable();
+}
+function drawTable(){
+  const rows = filtered(), per=25, pages=Math.max(1,Math.ceil(rows.length/per));
+  if (listState.page>=pages) listState.page=pages-1;
+  const slice = rows.slice(listState.page*per, listState.page*per+per);
+  const el = document.getElementById("tbl"); if(!el) return;
+  el.innerHTML = `<div class="tablewrap"><table><thead><tr><th>Référence</th><th>Reçue le</th><th>Client</th><th>Agence</th><th>Motif</th><th>Priorité</th><th>Statut</th><th>Service / responsable</th><th>Ancienneté</th></tr></thead><tbody>
+  ${slice.map(r=>{ const a=age(r), late=isLate(r); return `<tr data-id="${esc(r.id)}"><td><b>${esc(r.id)}</b>${r.source!=="import"?' <span class="pill" style="background:var(--info-bg);color:var(--info)">nouvelle</span>':''}</td><td>${fmtD(r.dateReception)}</td><td>${esc(r.clientNom)}</td><td>${esc(agNom(r.agenceId))}</td><td>${esc(r.motif)}</td><td>${pPill(r.priorite)}</td><td>${statusPill(r.statut)}</td><td>${esc(r.service)}<div class="muted" style="font-size:12px">${esc(respNom(r))}</div></td><td class="${late?"late":""}">${a} j${late?" ⚠":""}</td></tr>`; }).join("") || '<tr><td colspan="9" class="muted" style="text-align:center;padding:30px">Aucune réclamation ne correspond aux filtres.</td></tr>'}
+  </tbody></table></div>
+  <div class="pager"><span>${rows.length} résultat(s)</span><button class="btn sm" id="pp" ${listState.page===0?"disabled":""}>‹ Précédent</button><span>Page ${listState.page+1} / ${pages}</span><button class="btn sm" id="pn" ${listState.page>=pages-1?"disabled":""}>Suivant ›</button></div>`;
+  el.querySelectorAll("tbody tr[data-id]").forEach(tr=>tr.onclick=()=>{ location.hash="reclamation-"+tr.dataset.id; });
+  document.getElementById("pp").onclick=()=>{ listState.page--; drawTable(); };
+  document.getElementById("pn").onclick=()=>{ listState.page++; drawTable(); };
+}
+function respOptions(agId, sel){
+  const list=[["","Non affecté"]];
+  if (DATA.agences[agId]) list.push(["RESP", DATA.agences[agId].resp+" — Responsable d'agence"]);
+  Object.entries(DATA.commerciaux).filter(([k,v])=>v.ag===agId).forEach(([k,v])=>list.push([k, v.nom+" — "+v.fn]));
+  return opts(list, sel||"");
+}
+function clientOptions(){ return Object.entries(DATA.clients).map(([k,v])=>'<option value="'+esc(k+" · "+v[0]+" ("+v[1]+")")+'">').join(""); }
+function viewNew(){
+  const d = formDraft || {client:"",agenceId:"AG01",canal:"Téléphone",motif:"",priorite:"Moyenne",service:"",commercialId:"",description:""};
+  V.innerHTML = `
+  <h1>Nouvelle réclamation</h1>
+  <p class="sub">Saisissez la demande du client. L'assistant peut proposer le motif, la priorité et le service à partir de la description ; l'agent valide avant enregistrement.</p>
+  <form id="nf" class="card" autocomplete="off">
+    <div class="form">
+      <div class="field"><label>Client <span class="req">*</span></label><input list="clients" id="f_client" placeholder="Rechercher un client ou saisir un nom" value="${esc(d.client)}" required><datalist id="clients">${clientOptions()}</datalist></div>
+      <div class="field"><label>Agence <span class="req">*</span></label><select id="f_ag">${opts(AGOPTS(),d.agenceId)}</select></div>
+      <div class="field"><label>Canal de réception</label><select id="f_canal">${opts(CANAUX,d.canal)}</select></div>
+      <div class="field full"><label>Description de la réclamation <span class="req">*</span></label><textarea id="f_desc" placeholder="Ex. : J'ai commandé un réfrigérateur il y a 3 semaines, toujours pas livré malgré deux relances…" required>${esc(d.description)}</textarea>
+        <div style="margin-top:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap"><button type="button" class="btn ai" id="btnAI">✨ Analyser avec l'IA</button><span class="muted" style="font-size:12px">${aiLabel()}</span></div>
+        <div id="aiOut"></div>
+      </div>
+      <div class="field"><label>Motif <span class="req">*</span></label><select id="f_motif" required>${opts(MOTIFS,d.motif,"— Choisir —")}</select></div>
+      <div class="field"><label>Priorité <span class="req">*</span></label><select id="f_prio">${opts(PRIOS,d.priorite)}</select></div>
+      <div class="field"><label>Service affecté <span class="req">*</span></label><select id="f_serv" required>${opts(SERVICES,d.service,"— Choisir —")}</select></div>
+      <div class="field"><label>Responsable</label><select id="f_resp">${respOptions(d.agenceId,d.commercialId)}</select></div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:16px;justify-content:flex-end"><button type="button" class="btn" id="btnClear">Effacer</button><button type="submit" class="btn primary">Enregistrer la réclamation</button></div>
+  </form>`;
+  const g=id=>document.getElementById(id);
+  const keep=()=>{ formDraft={client:g("f_client").value,agenceId:g("f_ag").value,canal:g("f_canal").value,motif:g("f_motif").value,priorite:g("f_prio").value,service:g("f_serv").value,commercialId:g("f_resp").value,description:g("f_desc").value}; };
+  g("nf").addEventListener("input",keep); g("nf").addEventListener("change",keep);
+  g("f_ag").onchange=()=>{ g("f_resp").innerHTML=respOptions(g("f_ag").value,""); keep(); };
+  g("f_motif").addEventListener("change",()=>{ if(!g("f_serv").value){ g("f_serv").value=MOTIF_SERVICE[g("f_motif").value]||""; keep(); } });
+  g("btnClear").onclick=()=>{ formDraft=null; viewNew(); };
+  g("btnAI").onclick=async()=>{
+    const txt=g("f_desc").value.trim(); if(txt.length<10){ toast("Saisissez d'abord une description (10 caractères minimum)."); g("f_desc").focus(); return; }
+    const b=g("btnAI"); b.disabled=true; b.innerHTML='<span class="spin"></span> Analyse…';
+    const res = await aiClassify(txt,{canal:g("f_canal").value, agence:agNom(g("f_ag").value)});
+    b.disabled=false; b.innerHTML="✨ Analyser à nouveau";
+    g("aiOut").innerHTML = `<div class="aibox"><h3>✨ Proposition de l'assistant <span class="muted" style="font-weight:500">· ${esc(res.engine==="Claude"?"IA générative (Claude)":"moteur de règles")}</span></h3>
+      <dl class="kv"><dt>Résumé</dt><dd>${esc(res.resume)}</dd><dt>Motif</dt><dd>${esc(res.motif)}</dd><dt>Priorité</dt><dd>${pPill(res.priorite)}</dd><dt>Service</dt><dd>${esc(res.service)}</dd><dt>Justification</dt><dd class="muted">${esc(res.justification)}</dd></dl>
+      <div style="margin-top:10px;display:flex;gap:8px"><button type="button" class="btn primary sm" id="btnApply">Appliquer la proposition</button><button type="button" class="btn sm" id="btnIgnore">Ignorer</button></div>
+      <div class="warnline">⚠ Suggestion automatique : l'agent reste responsable du classement final et peut modifier chaque champ.${res.note?" "+esc(res.note):""}</div></div>`;
+    g("btnApply").onclick=()=>{ g("f_motif").value=res.motif; g("f_prio").value=res.priorite; g("f_serv").value=res.service; keep(); formDraft.aiResume=res.resume; formDraft.aiEngine=res.engine; g("aiOut").innerHTML='<div class="banner ok" style="margin:10px 0 0">✓ Proposition appliquée — vérifiez les champs puis enregistrez.</div>'; };
+    g("btnIgnore").onclick=()=>{ g("aiOut").innerHTML=""; };
+  };
+  g("nf").onsubmit=async(e)=>{
+    e.preventDefault(); keep();
+    const f=formDraft;
+    if(!f.client.trim()||!f.description.trim()||!f.motif||!f.service){ toast("Complétez les champs obligatoires (*)."); return; }
+    let clientId="", nom=f.client.trim(); const m=nom.match(/^(CL\d{4})\s*·\s*(.+?)(\s*\(.*\))?$/);
+    if(m){ clientId=m[1]; nom=DATA.clients[clientId]?DATA.clients[clientId][0]:m[2]; }
+    const now=new Date().toISOString();
+    const id="REC-"+now.slice(2,4)+now.slice(5,7)+"-"+Date.now().toString(36).slice(-5).toUpperCase();
+    const h=[{t:now,a:"Réclamation créée via « "+f.canal+" »",by:"Agent"}];
+    if (f.aiResume) h.push({t:now,a:"Classement proposé par l'assistant ("+f.aiEngine+") et validé par l'agent",by:"Agent"});
+    if (f.commercialId) h.push({t:now,a:"Affectée à "+respNom({commercialId:f.commercialId,agenceId:f.agenceId})+" ("+f.service+")",by:"Agent"});
+    const rec={id,dateReception:now,clientId,clientNom:nom,agenceId:f.agenceId,motif:f.motif,priorite:f.priorite,canal:f.canal,statut:"Nouvelle",dateCloture:null,commercialId:f.commercialId||"",service:f.service,description:f.description.trim(),resumeIA:f.aiResume||"",source:"app",historique:h};
+    const where = await saveRec(rec);
+    formDraft=null; toast("Réclamation "+id+" enregistrée"+(where==="local"?" (dans ce navigateur)":""));
+    location.hash="reclamation-"+id;
+  };
+}
+function viewDetail(id){
+  const r = getRec(id);
+  if(!r){ V.innerHTML='<a class="backlink" href="#liste">‹ Retour à la liste</a><div class="card">Réclamation introuvable : '+esc(id)+'</div>'; return; }
+  const a=age(r), late=isLate(r), idx=STATUTS.indexOf(r.statut);
+  V.innerHTML = `
+  <a class="backlink" href="#liste">‹ Retour à la liste</a>
+  <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px"><h1 style="margin:0">${esc(r.id)}</h1>${statusPill(r.statut)} ${pPill(r.priorite)} ${late?'<span class="pill" style="background:var(--crit-bg);color:var(--crit)">⚠ Hors délai</span>':'<span class="pill" style="background:var(--good-bg);color:var(--good)">✓ Dans les délais</span>'}</div>
+  <p class="sub">${esc(r.clientNom)} · ${esc(agNom(r.agenceId))} · reçue le ${fmtDT(r.dateReception)} · ancienneté ${a} j (cible ${SLA[r.priorite]} j)</p>
+  <div class="steps">${STATUTS.map((s,i)=>'<div class="step '+(i<idx?"done":i===idx?"cur":"")+'">'+(i<idx?"✓ ":"")+s+'</div>').join("")}</div>
+  <div class="grid detail">
+    <div class="grid" style="align-content:start">
+      <div class="card">
+        <h2>Dossier</h2>
+        <dl class="kv">
+          <dt>Client</dt><dd>${esc(r.clientNom)} ${r.clientId?'<span class="muted">('+esc(r.clientId)+(DATA.clients[r.clientId]?" · "+esc(DATA.clients[r.clientId][1])+" · "+esc(DATA.clients[r.clientId][2]):"")+')</span>':''}</dd>
+          <dt>Motif</dt><dd>${esc(r.motif)}</dd>
+          <dt>Canal</dt><dd>${esc(r.canal)}</dd>
+          <dt>Description</dt><dd>${r.description?esc(r.description).replace(/\n/g,"<br>"):'<span class="muted">Non renseignée (dossier importé du dataset)</span>'}</dd>
+          ${r.resumeIA?'<dt>Résumé IA</dt><dd>'+esc(r.resumeIA)+'</dd>':''}
+          <dt>Clôture</dt><dd>${r.dateCloture?fmtDT(r.dateCloture):"—"}</dd>
+        </dl>
+      </div>
+      <div class="card">
+        <h2>Traitement</h2>
+        <div class="form">
+          <div class="field"><label>Statut</label><select id="d_stat">${opts(STATUTS,r.statut)}</select></div>
+          <div class="field"><label>Priorité</label><select id="d_prio">${opts(PRIOS,r.priorite)}</select></div>
+          <div class="field"><label>Service affecté</label><select id="d_serv">${opts(SERVICES,r.service)}</select></div>
+          <div class="field"><label>Responsable</label><select id="d_resp">${respOptions(r.agenceId,r.commercialId)}</select></div>
+          <div class="field full"><label>Commentaire de suivi (facultatif)</label><input id="d_com" placeholder="Ex. : client rappelé, technicien planifié jeudi…"></div>
+        </div>
+        <div style="display:flex;justify-content:flex-end;margin-top:12px"><button class="btn primary" id="d_save">Mettre à jour le dossier</button></div>
+      </div>
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap"><h2 style="margin:0">Réponse au client</h2><span class="muted" style="font-size:12px">${aiLabel()}</span></div>
+        <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn ai" id="d_reply">✨ Suggérer une réponse</button></div>
+        <div id="replyOut"></div>
+      </div>
+    </div>
+    <div class="card" style="align-self:start"><h2>Historique</h2><ul class="timeline">${(r.historique||[]).slice().reverse().map(h=>'<li><div>'+esc(h.a)+'</div><div class="t">'+fmtDT(h.t)+' · '+esc(h.by||"")+'</div></li>').join("")}</ul></div>
+  </div>`;
+  const g=x=>document.getElementById(x);
+  g("d_save").onclick=async()=>{
+    const cur=JSON.parse(JSON.stringify(getRec(id))); const now=new Date().toISOString(); const ch=[];
+    const ns=g("d_stat").value, np=g("d_prio").value, nv=g("d_serv").value, nr=g("d_resp").value, com=g("d_com").value.trim();
+    if(ns!==cur.statut){ ch.push("Statut : "+cur.statut+" → "+ns); cur.statut=ns; cur.dateCloture = ns==="Clôturée" ? (cur.dateCloture||now) : null; }
+    if(np!==cur.priorite){ ch.push("Priorité : "+cur.priorite+" → "+np); cur.priorite=np; }
+    if(nv!==cur.service){ ch.push("Service : "+cur.service+" → "+nv); cur.service=nv; }
+    if(nr!==(cur.commercialId||"")){ cur.commercialId=nr; ch.push("Affectée à "+respNom(cur)); }
+    if(com) ch.push("Commentaire : "+com);
+    if(!ch.length){ toast("Aucune modification."); return; }
+    cur.historique=(cur.historique||[]).concat(ch.map(a=>({t:now,a,by:"Agent"})));
+    g("d_save").disabled=true;
+    const w=await saveRec(cur); toast("Dossier mis à jour"+(w==="local"?" (dans ce navigateur)":"")); viewDetail(id);
+  };
+  g("d_reply").onclick=async()=>{
+    const b=g("d_reply"); b.disabled=true; b.innerHTML='<span class="spin"></span> Rédaction…';
+    const res=await aiReply(getRec(id));
+    b.disabled=false; b.innerHTML="✨ Nouvelle suggestion";
+    g("replyOut").innerHTML=`<div class="aibox"><h3>✨ Brouillon de réponse <span class="muted" style="font-weight:500">· ${res.engine==="Claude"?"IA générative (Claude)":"modèle de réponse par motif"}</span></h3>
+      <textarea id="replyTxt" style="min-height:190px">${esc(res.text)}</textarea>
+      <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn sm" id="rCopy">Copier</button><button class="btn primary sm" id="rValid">Valider et consigner dans l'historique</button></div>
+      <div class="warnline">⚠ Brouillon automatique : relisez et corrigez avant tout envoi. Aucun engagement (montant, délai, geste commercial) ne doit être pris sans validation.</div></div>`;
+    g("rCopy").onclick=async()=>{ try{ await navigator.clipboard.writeText(g("replyTxt").value); toast("Réponse copiée."); }catch(e){ g("replyTxt").select(); toast("Sélectionnez le texte puis Ctrl+C."); } };
+    g("rValid").onclick=async()=>{ const cur=JSON.parse(JSON.stringify(getRec(id))); const now=new Date().toISOString(); cur.reponse=g("replyTxt").value; cur.historique=(cur.historique||[]).concat([{t:now,a:"Réponse client validée par l'agent (brouillon "+(res.engine==="Claude"?"IA":"modèle")+" relu)",by:"Agent"}]); if(cur.statut==="Nouvelle"){ cur.statut="En cours"; cur.historique.push({t:now,a:"Statut : Nouvelle → En cours",by:"Agent"}); } const w=await saveRec(cur); toast("Réponse consignée"+(w==="local"?" (dans ce navigateur)":"")); viewDetail(id); };
+  };
+}
+function viewHelp(){
+  V.innerHTML = `<h1>Guide de démonstration</h1><p class="sub">Prototype de centralisation et de suivi des réclamations clients — MBA IA for Business Managers, examen final (cas MAROCMARKET, entreprise fictive).</p>
+  <div class="grid two">
+   <div class="card"><h2>Parcours de test (5 minutes)</h2><ol style="margin:0;padding-left:18px;line-height:1.8">
+     <li><b>Tableau de bord</b> : consulter les KPI, puis cliquer sur « Générer la synthèse ».</li>
+     <li><b>+ Nouvelle réclamation</b> : saisir une description, cliquer sur « Analyser avec l'IA », appliquer la proposition, enregistrer.</li>
+     <li>Le dossier s'ouvre : changer le <b>statut</b> (En cours), l'<b>affecter</b> à un responsable, ajouter un commentaire, mettre à jour.</li>
+     <li>« Suggérer une réponse » : relire le brouillon, le valider.</li>
+     <li><b>Réclamations</b> : filtrer (statut, priorité, agence, « ouverts hors délai ») et retrouver le dossier créé.</li></ol></div>
+   <div class="card"><h2>Exemples de descriptions à tester</h2><ul style="margin:0;padding-left:18px;line-height:1.7">
+     <li>« Commande d'un réfrigérateur passée il y a 3 semaines, toujours pas livrée malgré deux relances. »</li>
+     <li>« Ma machine à laver fuit depuis la première utilisation et fait un bruit anormal. »</li>
+     <li>« On m'a facturé deux fois le même téléviseur, je veux une correction rapide. »</li>
+     <li>« Le climatiseur dégage une odeur de brûlé et de la fumée, c'est urgent ! »</li>
+     <li>« Est-ce que le TV QLED 65 pouces est compatible avec Netflix ? »</li></ul></div>
+   <div class="card"><h2>Règles de gestion</h2><dl class="kv">
+     <dt>Statuts</dt><dd>Nouvelle → En cours → En attente (client / pièce) → Clôturée</dd>
+     <dt>Délais cibles</dt><dd>Urgente 2 j · Élevée 5 j · Moyenne 10 j · Faible 15 j</dd>
+     <dt>Affectation</dt><dd>Motif → service par défaut (livraison → Logistique ; défaut et installation → SAV technique ; facturation et remboursement → Facturation ; information → Service client), puis un responsable de l'agence</dd>
+     <dt>Données</dt><dd>320 réclamations 2025 issues du dataset MAROCMARKET + saisies réalisées dans l'application</dd></dl></div>
+   <div class="card"><h2>IA responsable</h2><ul style="margin:0;padding-left:18px;line-height:1.7">
+     <li>L'IA <b>propose</b>, l'agent <b>valide</b> : aucun classement ni réponse n'est appliqué sans action humaine, et chaque validation est tracée dans l'historique.</li>
+     <li>Si l'IA générative n'est pas disponible pour le visiteur, un moteur de règles transparent (mots-clés) prend le relais.</li>
+     <li>Données fictives uniquement ; aucune donnée personnelle réelle. Les prompts interdisent d'inventer montants, délais ou engagements.</li>
+     <li>État de connexion affiché en haut à droite : données partagées en ligne, ou mode démonstration (saisies conservées dans ce navigateur).</li></ul>
+     <div style="margin-top:12px"><button class="btn sm" id="resetLocal">Effacer mes saisies locales</button> <span class="muted" style="font-size:12px">${Object.keys(localMap).length} dossier(s) dans ce navigateur</span></div></div>
+  </div>`;
+  document.getElementById("resetLocal").onclick=()=>{ localMap={}; saveLocal(); toast("Saisies locales effacées."); viewHelp(); };
+}
+function rerender(fromData){
+  if (fromData && (route==="nouvelle")) return;
+  if (fromData && route.startsWith("reclamation-") && document.activeElement && ["INPUT","SELECT","TEXTAREA"].includes(document.activeElement.tagName)) return;
+  if (fromData && route==="liste"){ drawTable(); return; }
+  if (fromData && route==="tableau-de-bord" && document.getElementById("btnSynth") && document.getElementById("btnSynth").disabled) return;
+  render();
+}
+function render(){
+  const h=(location.hash||"").replace(/^#/,"");
+  route = h || "tableau-de-bord";
+  document.querySelectorAll("nav.tabs a").forEach(a=>a.classList.toggle("on", a.dataset.r===route || (a.dataset.r==="liste" && route.startsWith("reclamation-"))));
+  if (route==="liste") viewList();
+  else if (route==="nouvelle") viewNew();
+  else if (route==="aide") viewHelp();
+  else if (route.startsWith("reclamation-")) viewDetail(route.slice(12));
+  else { route="tableau-de-bord"; viewDashboard(); }
+}
+window.addEventListener("hashchange",()=>{ render(); window.scrollTo(0,0); });
+/* infobulles */
+const tip=document.getElementById("tip");
+document.addEventListener("mousemove",e=>{ const t=e.target.closest("[data-tip]"); if(t){ tip.textContent=t.dataset.tip; tip.style.display="block"; tip.style.left=Math.min(e.clientX+12, innerWidth-270)+"px"; tip.style.top=(e.clientY+14)+"px"; } else tip.style.display="none"; });
+render(); renderMode();
+initDb(); initAI();
+</script>
+</body>
+</html>
