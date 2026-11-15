@@ -11,7 +11,7 @@
 /* =========================================================================
    MAROCMARKET – Interface de gestion des réclamations
    Fichier unique : HTML + CSS + JavaScript, sans framework ni bibliothèque.
-   Données FICTIVES – prototype d'examen MBA AIBM.
+   Données FICTIVES – prototype de démonstration.
    ========================================================================= */
 :root{
   --bleu:#1C5CAB; --bleu-f:#123f78; --bleu-c:#e8f0fa;
@@ -369,7 +369,7 @@ code.ex{display:block;background:#f9fafb;border:1px solid var(--bord);border-rad
       </div>
     </section>
   </main>
-  <footer>MAROCMARKET – prototype de démonstration – Données fictives – Examen MBA IA for Business Managers</footer>
+  <footer>MAROCMARKET – prototype de démonstration – Données fictives</footer>
 </div>
 
 <div id="toast" class="cache" role="status"></div>
@@ -474,7 +474,7 @@ const etat = {
 
 /* =========================================================================
    COMMUNICATION AVEC APPS SCRIPT
-   POST en "text/plain" : évite le pré-contrôle CORS refusé par Apps Script.
+   POST en "text/plain" : évite la requête préalable CORS (preflight) refusée par Apps Script.
    ========================================================================= */
 class ErreurReseau extends Error {}
 async function api(methode, charge, delaiMs = 25000) {
@@ -913,7 +913,7 @@ async function analyserIA() {
   // Minimisation : seule la description et le canal sont envoyés (pas de client, pas d'e-mail)
   const { result, engine } = await appelIA("classify", {description: desc.slice(0, 3000), canal: $("nCanal").value});
   btn.disabled = false; btn.innerHTML = "✦ Analyser avec l'IA";
-  // Contrôle côté page également : valeurs hors listes fermées ignorées
+  // Vérification côté page également : valeurs hors listes fermées ignorées
   const r = {
     motif: MOTIFS.includes(result.motif) ? result.motif : "",
     priorite: PRIOS.includes(result.priorite) ? result.priorite : "",
