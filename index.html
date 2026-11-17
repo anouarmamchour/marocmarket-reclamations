@@ -135,7 +135,6 @@ dl.infos dt{color:var(--gris)} dl.infos dd{margin:0}
 #toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#111827;color:#fff;padding:10px 16px;border-radius:8px;z-index:100;max-width:90vw;box-shadow:0 4px 14px rgba(0,0,0,.25)}
 .chargement{display:inline-block;width:14px;height:14px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:tourne .8s linear infinite;vertical-align:-2px}
 @keyframes tourne{to{transform:rotate(360deg)}}
-.guide h3{margin-top:1em} .guide li{margin-bottom:4px}
 code.ex{display:block;background:#f9fafb;border:1px solid var(--bord);border-radius:8px;padding:8px 10px;margin:6px 0;font-family:inherit;font-size:13px}
 </style>
 </head>
@@ -190,7 +189,6 @@ code.ex{display:block;background:#f9fafb;border:1px solid var(--bord);border-rad
       <button data-vue="nouvelle">Nouvelle réclamation</button>
       <button data-vue="liste">Liste des réclamations</button>
       <button data-vue="alertes">Configuration des alertes</button>
-      <button data-vue="guide">Guide</button>
     </nav>
   </header>
   <div id="bandeau" class="bandeau cache"></div>
@@ -326,48 +324,6 @@ code.ex{display:block;background:#f9fafb;border:1px solid var(--bord);border-rad
       </div>
     </section>
 
-    <!-- ---------------- F8 – Guide ---------------- -->
-    <section id="vue-guide" class="vue cache">
-      <div class="carte guide">
-        <h2>Guide de l'évaluateur</h2>
-        <p>Prototype de démonstration MAROCMARKET : toutes les données (clients, agences, réclamations) sont <strong>fictives</strong>. Les données sont stockées dans un Google Sheet unique, lu aussi par Power BI.</p>
-
-        <h3>Parcours de test en 5 minutes</h3>
-        <ol>
-          <li><strong>Tableau de bord</strong> : lisez les 6 indicateurs, puis cliquez sur « Générer la synthèse ». Vérifiez que chaque constat reprend un chiffre affiché et que la source (IA générative Gemini ou Assistant à règles) est indiquée.</li>
-          <li><strong>Nouvelle réclamation</strong> : choisissez un client, une agence, un canal, collez l'un des exemples ci-dessous, puis cliquez sur « Analyser avec l'IA ». Lisez la proposition, cliquez sur « Appliquer » (rien n'est appliqué sans votre clic), mettez la priorité sur <em>Urgente</em> et enregistrez.</li>
-          <li><strong>Alerte e-mail</strong> : la création d'un dossier « Urgente » envoie un e-mail à l'administrateur et aux abonnés. Un dossier « Moyenne » n'en envoie pas. Abonnez-vous dans « Configuration des alertes » pour le constater.</li>
-          <li><strong>Liste</strong> : retrouvez votre dossier avec la recherche ou les filtres (statut « Nouvelle », votre agence…), puis ouvrez-le.</li>
-          <li><strong>Fiche dossier</strong> : passez-le « En cours », affectez un responsable, cliquez sur « Suggérer une réponse », modifiez le brouillon puis validez-le. Terminez par « Clôturée » : la date de clôture et les jours de traitement se calculent et l'historique horodaté se complète.</li>
-        </ol>
-        <p class="muted">Ouvrez le même lien sur un autre appareil : les données sont identiques (Google Sheet partagé). Elles se rafraîchissent toutes les 60 secondes, ou avec le bouton « Actualiser ».</p>
-
-        <h3>Exemples de descriptions à saisir</h3>
-        <code class="ex">Commande d'un réfrigérateur passée il y a trois semaines sur le site, toujours pas livrée malgré deux relances. Le client part en voyage la semaine prochaine.</code>
-        <code class="ex">Le lave-linge acheté le mois dernier dégage une odeur de brûlé et a fait sauter le disjoncteur. Le client a peur d'un incendie.</code>
-        <code class="ex">Le montant prélevé sur la facture du téléviseur ne correspond pas au prix affiché en agence ; le client a été facturé deux fois.</code>
-        <code class="ex">Le technicien n'est pas venu au rendez-vous prévu pour l'installation du climatiseur, et personne n'a prévenu le client.</code>
-        <code class="ex">Le client souhaite savoir si l'aspirateur robot présenté sur le site est compatible avec les tapis épais et s'il existe une garantie prolongée.</code>
-
-        <h3>Règles de gestion</h3>
-        <ul>
-          <li><strong>Délais cibles (SLA)</strong> : Urgente 2 jours ; Élevée 5 jours ; Moyenne 10 jours ; Faible 15 jours.</li>
-          <li><strong>Ancienneté</strong> = date de clôture (ou date du jour si le dossier est ouvert) − date de réception. Pour les dossiers importés encore ouverts, la référence est le 31/12/2025. Un dossier est <span class="hors">hors délai</span> si son ancienneté dépasse le délai cible.</li>
-          <li><strong>Service par défaut selon le motif</strong> : Retard de livraison → Logistique ; Produit défectueux et Installation → SAV technique ; Erreur de facturation et Demande de remboursement → Facturation ; Information produit → Service client.</li>
-          <li><strong>Statuts</strong> : Nouvelle → En cours → En attente → Clôturée. À la clôture, la date et les jours de traitement sont calculés automatiquement.</li>
-          <li>Les listes de valeurs (motif, priorité, statut, canal, service) sont fermées et contrôlées par le serveur.</li>
-        </ul>
-
-        <h3>Principes d'IA responsable</h3>
-        <ul>
-          <li><strong>L'IA propose, l'humain décide</strong> : aucune proposition n'est appliquée ou consignée sans le clic de l'agent, et chaque validation est tracée dans l'historique.</li>
-          <li><strong>Transparence</strong> : la source de chaque proposition est affichée (« IA générative Gemini » ou « Assistant à règles », utilisé automatiquement si l'IA est indisponible).</li>
-          <li><strong>Minimisation des données</strong> : seuls la description et les éléments du dossier nécessaires sont envoyés à l'IA, jamais l'identifiant client ni une adresse e-mail. L'IA est appelée par le serveur, la clé n'est jamais dans cette page.</li>
-          <li><strong>Pas d'invention</strong> : les prompts interdisent tout montant, délai ou engagement absent des données ; les réponses restent des brouillons à relire.</li>
-          <li><strong>Limite</strong> : l'écran de connexion est une barrière d'accès de démonstration, pas une sécurité de production.</li>
-        </ul>
-      </div>
-    </section>
   </main>
   <footer>MAROCMARKET – prototype de démonstration – Données fictives</footer>
 </div>
@@ -1218,12 +1174,12 @@ async function actionAlerte(action) {
 }
 
 /* =========================================================================
-   NAVIGATION (#tableau, #nouvelle, #liste, #alertes, #guide, #reclamation-ID)
+   NAVIGATION (#tableau, #nouvelle, #liste, #alertes, #reclamation-ID)
    ========================================================================= */
 function vueCourante() { const h = location.hash.slice(1); return h.startsWith("reclamation-") ? "fiche" : (h || "tableau"); }
 function router() {
   if (!etat.session) return;
-  const vue = vueCourante(), connues = ["tableau", "nouvelle", "liste", "fiche", "alertes", "guide"];
+  const vue = vueCourante(), connues = ["tableau", "nouvelle", "liste", "fiche", "alertes"];
   const v = connues.includes(vue) ? vue : "tableau";
   document.querySelectorAll(".vue").forEach(s => s.classList.toggle("cache", s.id !== "vue-" + v));
   document.querySelectorAll("#nav button").forEach(b => b.classList.toggle("actif", b.dataset.vue === v || (v === "fiche" && b.dataset.vue === "liste")));
