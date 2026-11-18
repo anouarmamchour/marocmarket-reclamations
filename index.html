@@ -527,14 +527,14 @@ function afficherBandeau(type, html) { const b = $("bandeau"); b.className = "ba
 function masquerBandeau() { if (etat.session.mode !== "demo") $("bandeau").className = "bandeau cache"; }
 
 /* ---------- Enregistrement ---------- */
-async function enregistrer(record) {
+async function enregistrer(record, creation) {
   if (etat.session.mode === "demo") {
     const saisies = lireSaisiesDemo(); saisies[record.id] = record;
     try { localStorage.setItem(CLE_DEMO, JSON.stringify(saisies)); } catch (e) { /* stockage plein : on garde en mémoire */ }
     remplacerLocal(record);
     return {ok:true, id:record.id, demo:true, alerteEnvoyee:false};
   }
-  const rep = await api("POST", {action:"save", record, appUrl: location.origin + location.pathname}, 30000);
+  const rep = await api("POST", {action:"save", record, creation: creation === true, appUrl: location.origin + location.pathname}, 30000);
   if (!rep.ok) throw new Error(rep.erreur || "Enregistrement refusé par le serveur.");
   remplacerLocal(record);
   return rep;
@@ -903,10 +903,10 @@ async function analyserIA() {
   $("btnIgnorer").onclick = () => { etat.propositionIA = null; $("iaProposition").innerHTML = ""; };
 }
 
+/** Référence provisoire REC0321… (suite des numéros) ; le serveur attribue le numéro définitif. */
 function genererReference() {
-  const d = new Date(), car = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-  const alea = Array.from(crypto.getRandomValues(new Uint8Array(5)), x => car[x % car.length]).join("");
-  return `REC-${String(d.getFullYear()).slice(2)}${pad(d.getMonth() + 1)}-${alea}`;
+  const max = etat.records.reduce((m, r) => { const x = /^REC(\d+)$/.exec(String(r.id)); return x ? Math.max(m, Number(x[1])) : m; }, 0);
+  return "REC" + String(max + 1).padStart(4, "0");
 }
 function interpreterClient(saisie) {
   const s = saisie.trim();
@@ -948,7 +948,7 @@ async function soumettreNouvelle(ev) {
   };
   const btn = $("btnEnregistrer"); btn.disabled = true; btn.innerHTML = '<span class="chargement"></span> Enregistrement…';
   try {
-    const rep = await enregistrer(record);
+    const rep = await enregistrer(record, true);
     if (rep.id && rep.id !== record.id) { etat.records = etat.records.filter(r => r.id !== record.id); record.id = rep.id; remplacerLocal(record); }
     viderFormulaire();
     let txt = `Réclamation ${record.id} enregistrée` + (rep.demo ? " (mode démonstration, dans ce navigateur)." : " dans le Google Sheet.");
