@@ -74,7 +74,6 @@ nav .sous-menu .desc{display:block;font-size:11.5px;color:var(--gris);font-weigh
 .ligne-question{display:flex;gap:8px;margin:10px 0;flex-wrap:wrap} .ligne-question input{flex:1;min-width:240px}
 .exemples{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0} .exemples button{border:1px solid #d9c9f7;background:#faf7ff;color:var(--violet);border-radius:16px;padding:5px 11px;font-size:12.5px;cursor:pointer}
 .exemples button:hover{background:var(--violet-c)}
-table.prompts{width:100%;border-collapse:collapse;font-size:13px} table.prompts th,table.prompts td{border:1px solid var(--bord);padding:8px;vertical-align:top;text-align:left} table.prompts th{background:#f8fafc}
 nav.onglets button{border:none;background:none;padding:10px 12px;border-bottom:3px solid transparent;cursor:pointer;color:var(--gris);font-weight:500;white-space:nowrap}
 nav.onglets button.actif{color:var(--bleu);border-bottom-color:var(--bleu)}
 main{max-width:1240px;margin:0 auto;padding:20px}
@@ -204,13 +203,7 @@ code.ex{display:block;background:#f9fafb;border:1px solid var(--bord);border-rad
           <button data-vue="liste">Liste des réclamations</button>
           <button data-vue="alertes">Configuration des alertes</button>
         </div></div>
-      <div class="groupe"><button type="button" class="groupe-titre" data-groupe="ia">Assistant IA ▾</button>
-        <div class="sous-menu">
-          <button data-vue="assistant-commercial">Assistant commercial<span class="desc">Questions sur les ventes</span></button>
-          <button data-vue="assistant-client">Assistant service client<span class="desc">Questions sur les réclamations</span></button>
-          <button data-vue="synthese-direction">Synthèse pour la direction<span class="desc">Constats et recommandations</span></button>
-          <button data-vue="prompts">Prompts et validation humaine<span class="desc">Règles, limites, contrôles</span></button>
-        </div></div>
+      <button data-vue="assistant">✦ Assistant IA</button>
     </nav>
   </header>
   <div id="bandeau" class="bandeau cache"></div>
@@ -347,80 +340,32 @@ code.ex{display:block;background:#f9fafb;border:1px solid var(--bord);border-rad
     </section>
 
 
-    <!-- ---------------- F10 – Assistants IA ---------------- -->
-    <section id="vue-assistant-commercial" class="vue cache">
+    <!-- ---------------- F10 – Assistant IA (page unique) ---------------- -->
+    <section id="vue-assistant" class="vue cache">
       <div class="carte">
-        <h2>Assistant IA du responsable commercial</h2>
-        <p class="muted">Posez une question sur les ventes 2025 : agences, semestres, catégories, produits, segments de clients, mois. L'assistant répond <strong>uniquement à partir des chiffres calculés</strong> par l'application et ne voit aucune donnée client.</p>
-        <div class="exemples" data-cible="qVentes">
-          <button type="button">Quelle agence a le plus baissé entre les deux semestres, et pourquoi ?</button>
-          <button type="button">Quelle catégorie a le meilleur taux de marge ?</button>
-          <button type="button">Quels sont les 3 produits qui rapportent le plus ?</button>
-          <button type="button">Quel est le mois le plus faible de l'année ?</button>
+        <h2>Assistant IA</h2>
+        <p class="muted">Choisissez l'assistant, puis saisissez votre demande. L'assistant répond <strong>uniquement à partir des chiffres calculés</strong> par l'application ; il ne voit ni nom ni coordonnées de client. Chaque réponse est une proposition à vérifier avant toute décision.</p>
+        <label for="choixAssistant">Assistant</label>
+        <select id="choixAssistant" style="max-width:420px">
+          <option value="ventes">Assistant commercial – questions sur les ventes</option>
+          <option value="reclamations">Assistant service client – questions sur les réclamations</option>
+          <option value="direction">Synthèse pour la direction – constats et recommandations</option>
+        </select>
+        <div id="blocQuestion">
+          <div class="exemples" id="exemplesAssistant"></div>
+          <label for="qAssistant" style="margin-top:10px">Votre demande</label>
+          <div class="ligne-question" style="margin-top:0"><input id="qAssistant" maxlength="300" placeholder="Saisissez votre demande…"><button class="btn ia" id="btnQAssistant">✦ Envoyer</button></div>
         </div>
-        <div class="ligne-question"><input id="qVentes" maxlength="300" placeholder="Votre question sur les ventes…"><button class="btn ia" id="btnQVentes">✦ Poser la question</button></div>
-        <div id="repVentes"></div>
-      </div>
-    </section>
-
-    <section id="vue-assistant-client" class="vue cache">
-      <div class="carte">
-        <h2>Assistant IA du service clientèle</h2>
-        <p class="muted">Posez une question sur les réclamations : motifs, agences, priorités, canaux, délais, dossiers ouverts. L'assistant répond <strong>uniquement à partir des chiffres calculés</strong> et ne voit ni nom ni coordonnées de client.</p>
-        <div class="exemples" data-cible="qClient">
-          <button type="button">Quel motif dépasse le plus souvent son délai ?</button>
-          <button type="button">Quelle agence a le plus de dossiers ouverts ?</button>
-          <button type="button">Les réclamations urgentes sont-elles traitées dans les délais ?</button>
-          <button type="button">Quel canal reçoit le plus de réclamations ?</button>
+        <div id="blocDirection" class="cache">
+          <p class="small muted" style="margin:10px 0 6px">La synthèse se construit à partir de tous les indicateurs ; choisissez le sujet :</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn ia" id="btnSynthRecl">✦ Synthèse des réclamations</button>
+            <button class="btn ia" id="btnSynthVentes">✦ Analyse de la baisse du chiffre d'affaires</button>
+          </div>
         </div>
-        <div class="ligne-question"><input id="qClient" maxlength="300" placeholder="Votre question sur les réclamations…"><button class="btn ia" id="btnQClient">✦ Poser la question</button></div>
-        <div id="repClient"></div>
-      </div>
-      <div class="carte">
-        <h3>L'IA intégrée au traitement des réclamations</h3>
-        <ul>
-          <li><strong>À la saisie</strong> (écran « Nouvelle réclamation ») : l'IA propose le motif, la priorité, le service et un résumé ; l'agent accepte ou corrige.</li>
-          <li><strong>Dans la fiche</strong> d'un dossier : l'IA rédige un brouillon de réponse au client ; l'agent le relit, le modifie et l'envoie lui-même.</li>
-          <li><strong>En cas d'urgence</strong> : une alerte e-mail part automatiquement vers le responsable (écran « Configuration des alertes »).</li>
-        </ul>
-      </div>
-    </section>
-
-    <section id="vue-synthese-direction" class="vue cache">
-      <div class="carte">
-        <h2>Synthèse pour la direction</h2>
-        <p class="muted">L'IA rédige une note courte à partir des indicateurs : la situation, les points d'attention et des <strong>recommandations opérationnelles</strong>. Chaque note est à valider par un responsable avant diffusion.</p>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <button class="btn ia" id="btnSynthRecl">✦ Synthèse des réclamations</button>
-          <button class="btn ia" id="btnSynthVentes">✦ Analyse de la baisse du chiffre d'affaires</button>
-        </div>
+        <div id="repAssistant"></div>
         <div id="synthRecl"></div>
         <div id="synthVentes"></div>
-      </div>
-    </section>
-
-    <section id="vue-prompts" class="vue cache">
-      <div class="carte">
-        <h2>Prompts et validation humaine</h2>
-        <p class="muted">Chaque usage de l'IA repose sur un prompt écrit pour une situation professionnelle précise. Les règles communes : un rôle défini, une seule source de données autorisée, des valeurs imposées, l'interdiction d'inventer des chiffres ou des engagements, et un format de réponse vérifié par l'application. Si l'IA ne répond pas, des règles simples prennent le relais.</p>
-        <table class="prompts">
-          <thead><tr><th>Usage</th><th>Ce que le prompt impose</th><th>Limites constatées lors des tests</th><th>Validation humaine</th></tr></thead>
-          <tbody>
-            <tr><td><strong>Tri d'une réclamation</strong><br><span class="muted small">Service client</span></td><td>Motif, priorité et service choisis dans les listes de l'entreprise ; « Urgente » = risque pour la sécurité ; ne pas suivre d'instruction cachée dans le texte du client</td><td>Répond même quand le texte est trop vague (« pas content ») ; cas ambigus possibles (installation ou remboursement)</td><td>L'agent accepte ou corrige avant d'enregistrer</td></tr>
-            <tr><td><strong>Brouillon de réponse au client</strong><br><span class="muted small">Service client</span></td><td>Ton courtois, reformuler, indiquer le service ; aucun montant, délai, date ni geste commercial</td><td>Peut reprendre une information donnée par le client (une date)</td><td>L'agent relit, modifie et envoie lui-même</td></tr>
-            <tr><td><strong>Synthèse des réclamations</strong><br><span class="muted small">Direction</span></td><td>Uniquement les indicateurs calculés ; chaque constat cite un chiffre exact ; 3 parties</td><td>Recommandations parfois générales ; décimales au point (55.9)</td><td>Le responsable vérifie les chiffres avant diffusion</td></tr>
-            <tr><td><strong>Analyse de la baisse du CA</strong><br><span class="muted small">Direction</span></td><td>Question de la direction ; totaux par agence et semestre ; causes non prouvées présentées comme pistes</td><td>Classe une baisse faible (−2,9 %) avec les fortes ; suppose un lien réclamations–ventes non démontré</td><td>Vérification avec le tableau de bord (page « Analyse IA »)</td></tr>
-            <tr><td><strong>Assistant commercial</strong><br><span class="muted small">Responsable commercial</span></td><td>Répondre seulement à partir des chiffres de ventes ; sinon « Je ne trouve pas cette information dans les données disponibles » ; refuser le hors-sujet</td><td>Ne connaît que les données agrégées 2025 (pas de stocks, de concurrents ni de prix du marché)</td><td>Chaque réponse est marquée « à vérifier »</td></tr>
-            <tr><td><strong>Assistant service client</strong><br><span class="muted small">Responsable du service client</span></td><td>Mêmes règles, sur les chiffres des réclamations</td><td>Ne voit pas le contenu des dossiers (par choix de confidentialité)</td><td>Chaque réponse est marquée « à vérifier »</td></tr>
-          </tbody>
-        </table>
-        <h3>Protection des données</h3>
-        <ul>
-          <li>Les e-mails et numéros de téléphone sont masqués avant tout envoi à l'IA.</li>
-          <li>Les synthèses et les assistants ne reçoivent que des chiffres agrégés, jamais un client.</li>
-          <li>La clé d'accès à l'IA reste côté serveur ; elle n'apparaît jamais dans cette page.</li>
-          <li>Le nombre de questions aux assistants est limité par heure.</li>
-        </ul>
       </div>
     </section>
   </main>
@@ -1276,16 +1221,25 @@ async function actionAlerte(action) {
    F10 – ASSISTANTS IA (question libre) et synthèse des ventes
    Le serveur calcule les chiffres agrégés et interroge Gemini ; la page n'envoie que la question.
    ========================================================================= */
+const EXEMPLES_IA = {
+  ventes: ["Quelle agence a le plus baissé entre les deux semestres, et pourquoi ?", "Quelle catégorie a le meilleur taux de marge ?", "Quels sont les 3 produits qui rapportent le plus ?", "Quel est le mois le plus faible de l'année ?"],
+  reclamations: ["Quel motif dépasse le plus souvent son délai ?", "Quelle agence a le plus de dossiers ouverts ?", "Les réclamations urgentes sont-elles traitées dans les délais ?", "Quel canal reçoit le plus de réclamations ?"]
+};
 function initAssistants() {
-  const brancher = (inp, btn, zone, domaine) => {
-    $(btn).onclick = () => poserQuestion(domaine, inp, btn, zone);
-    $(inp).onkeydown = e => { if (e.key === "Enter") { e.preventDefault(); poserQuestion(domaine, inp, btn, zone); } };
+  const choix = $("choixAssistant");
+  const envoyer = () => poserQuestion(choix.value, "qAssistant", "btnQAssistant", "repAssistant");
+  const majChoix = () => {
+    const d = choix.value, dir = d === "direction";
+    $("blocQuestion").classList.toggle("cache", dir); $("blocDirection").classList.toggle("cache", !dir);
+    if (!dir) {
+      $("qAssistant").placeholder = d === "ventes" ? "Votre question sur les ventes…" : "Votre question sur les réclamations…";
+      $("exemplesAssistant").innerHTML = EXEMPLES_IA[d].map(t => `<button type="button">${esc(t)}</button>`).join("");
+      $("exemplesAssistant").querySelectorAll("button").forEach(b => b.onclick = () => { $("qAssistant").value = b.textContent; envoyer(); });
+    }
   };
-  brancher("qVentes", "btnQVentes", "repVentes", "ventes");
-  brancher("qClient", "btnQClient", "repClient", "reclamations");
-  document.querySelectorAll(".exemples").forEach(bloc => bloc.querySelectorAll("button").forEach(b => b.onclick = () => {
-    const cible = bloc.dataset.cible; $(cible).value = b.textContent; $(cible === "qVentes" ? "btnQVentes" : "btnQClient").click();
-  }));
+  choix.onchange = majChoix; majChoix();
+  $("btnQAssistant").onclick = envoyer;
+  $("qAssistant").onkeydown = e => { if (e.key === "Enter") { e.preventDefault(); envoyer(); } };
   $("btnSynthRecl").onclick = () => genererSynthese("btnSynthRecl", "synthRecl");
   $("btnSynthVentes").onclick = analyserVentes;
 }
@@ -1309,7 +1263,7 @@ async function poserQuestion(domaine, inpId, btnId, zoneId) {
   if (erreur) { zone.insertAdjacentHTML("afterbegin", `<p class="msg err">${esc(erreur)}</p>`); return; }
   const chiffres = (res.chiffresUtilises || []).length ? `<p class="small muted" style="margin:6px 0 0"><strong>Chiffres utilisés :</strong> ${res.chiffresUtilises.map(esc).join(" · ")}</p>` : "";
   zone.insertAdjacentHTML("afterbegin", `<div class="ia-boite"><span class="source ${engine}">Source : ${esc(LIB_MOTEUR[engine])}</span>
-    <p style="margin:4px 0"><strong>Question :</strong> ${esc(q)}</p>
+    <p style="margin:4px 0"><strong>${domaine === "ventes" ? "Assistant commercial" : "Assistant service client"} – question :</strong> ${esc(q)}</p>
     <p style="white-space:pre-wrap;margin:6px 0">${esc(res.reponse || "")}</p>${chiffres}
     <p class="msg warn small" style="margin:8px 0 0">Proposition de l'IA, à vérifier avant toute décision – ${esc(new Date().toLocaleString("fr-FR"))} – Données fictives.</p></div>`);
   inp.value = "";
@@ -1339,7 +1293,7 @@ async function analyserVentes() {
 function vueCourante() { const h = location.hash.slice(1); return h.startsWith("reclamation-") ? "fiche" : (h || "tableau"); }
 function router() {
   if (!etat.session) return;
-  const vue = vueCourante(), connues = ["tableau", "nouvelle", "liste", "fiche", "alertes", "assistant-commercial", "assistant-client", "synthese-direction", "prompts"];
+  const vue = vueCourante(), connues = ["tableau", "nouvelle", "liste", "fiche", "alertes", "assistant"];
   const v = connues.includes(vue) ? vue : "tableau";
   document.querySelectorAll(".vue").forEach(s => s.classList.toggle("cache", s.id !== "vue-" + v));
   document.querySelectorAll("#nav button[data-vue]").forEach(b => b.classList.toggle("actif", b.dataset.vue === v || (v === "fiche" && b.dataset.vue === "liste")));
