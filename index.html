@@ -74,6 +74,12 @@ nav .sous-menu .desc{display:block;font-size:11.5px;color:var(--gris);font-weigh
 .ligne-question{display:flex;gap:8px;margin:10px 0;flex-wrap:wrap} .ligne-question input{flex:1;min-width:240px}
 .exemples{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0} .exemples button{border:1px solid #d9c9f7;background:#faf7ff;color:var(--violet);border-radius:16px;padding:5px 11px;font-size:12.5px;cursor:pointer}
 .exemples button:hover{background:var(--violet-c)}
+.histo{border:1px solid var(--bord);border-radius:8px;margin:6px 0;background:#fff}
+.histo summary{cursor:pointer;padding:8px 12px;display:flex;gap:8px;align-items:baseline;flex-wrap:wrap;list-style:none}
+.histo summary::-webkit-details-marker{display:none}
+.histo summary::before{content:"▸";color:var(--violet)} .histo[open] summary::before{content:"▾"}
+.histo .tag{font-size:11.5px;border-radius:10px;padding:1px 8px;background:var(--violet-c);color:var(--violet);white-space:nowrap}
+.histo .corps{padding:0 12px 10px 28px}
 nav.onglets button{border:none;background:none;padding:10px 12px;border-bottom:3px solid transparent;cursor:pointer;color:var(--gris);font-weight:500;white-space:nowrap}
 nav.onglets button.actif{color:var(--bleu);border-bottom-color:var(--bleu)}
 main{max-width:1240px;margin:0 auto;padding:20px}
@@ -364,6 +370,14 @@ code.ex{display:block;background:#f9fafb;border:1px solid var(--bord);border-rad
           </div>
         </div>
         <div id="repAssistant"></div>
+        <div id="blocHistorique" class="cache" style="margin-top:16px">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
+            <h3 style="margin:0">Historique des questions <span class="muted small" id="nbHistorique"></span></h3>
+            <button class="btn sec" id="btnViderHistorique" type="button">Effacer l'historique</button>
+          </div>
+          <p class="small muted" style="margin:4px 0 8px">Les questions posées depuis ce navigateur, de la plus récente à la plus ancienne. Cliquez sur une question pour revoir la réponse.</p>
+          <div id="listeHistorique"></div>
+        </div>
         <div id="synthRecl"></div>
         <div id="synthVentes"></div>
       </div>
@@ -1238,15 +1252,35 @@ function initAssistants() {
     }
   };
   choix.onchange = majChoix; majChoix();
+  $("btnViderHistorique").onclick = () => { if (confirm("Effacer l'historique des questions de ce navigateur ?")) { ecrireHistorique([]); afficherHistorique(); } };
+  afficherHistorique();
   $("btnQAssistant").onclick = envoyer;
   $("qAssistant").onkeydown = e => { if (e.key === "Enter") { e.preventDefault(); envoyer(); } };
   $("btnSynthRecl").onclick = () => genererSynthese("btnSynthRecl", "synthRecl");
   $("btnSynthVentes").onclick = analyserVentes;
 }
 
+const CLE_HISTO_IA = "mm_historique_assistant", MAX_HISTORIQUE = 50;
+const NOM_ASSISTANT = {ventes: "Assistant commercial", reclamations: "Assistant service client"};
+function lireHistorique() { try { return JSON.parse(localStorage.getItem(CLE_HISTO_IA) || "[]"); } catch (e) { return []; } }
+function ecrireHistorique(h) { try { localStorage.setItem(CLE_HISTO_IA, JSON.stringify(h)); } catch (e) { /* stockage indisponible */ } }
+function carteReponse(x) {
+  const chiffres = x.chiffres.length ? `<p class="small muted" style="margin:6px 0 0"><strong>Chiffres utilisés :</strong> ${x.chiffres.map(esc).join(" · ")}</p>` : "";
+  return `<div class="ia-boite"><span class="source ${x.engine}">Source : ${esc(LIB_MOTEUR[x.engine] || "")}</span>
+    <p style="margin:4px 0"><strong>${esc(NOM_ASSISTANT[x.domaine] || "Assistant")} – question :</strong> ${esc(x.q)}</p>
+    <p style="white-space:pre-wrap;margin:6px 0">${esc(x.reponse)}</p>${chiffres}
+    <p class="msg warn small" style="margin:8px 0 0">Proposition de l'IA, à vérifier avant toute décision – ${esc(x.date)} – Données fictives.</p></div>`;
+}
+function afficherHistorique() {
+  const h = lireHistorique();
+  $("blocHistorique").classList.toggle("cache", !h.length);
+  $("nbHistorique").textContent = h.length ? `(${h.length})` : "";
+  $("listeHistorique").innerHTML = h.map(x => `<details class="histo"><summary><span class="tag">${esc(NOM_ASSISTANT[x.domaine] || "Assistant")}</span><strong>${esc(x.q)}</strong><span class="muted small">${esc(x.date)}</span></summary><div class="corps">${carteReponse(x)}</div></details>`).join("");
+}
+
 async function poserQuestion(domaine, inpId, btnId, zoneId) {
   const inp = $(inpId), btn = $(btnId), zone = $(zoneId), q = inp.value.trim();
-  if (q.length < 5) { zone.insertAdjacentHTML("afterbegin", '<p class="msg warn">Écrivez une question d\'au moins 5 caractères.</p>'); return; }
+  if (q.length < 5) { zone.innerHTML = '<p class="msg warn">Écrivez une question d\'au moins 5 caractères.</p>'; return; }
   const libelle = btn.innerHTML;
   btn.disabled = true; btn.innerHTML = '<span class="chargement"></span> L\'IA réfléchit…';
   let res = null, engine = "regles", erreur = "";
@@ -1260,12 +1294,10 @@ async function poserQuestion(domaine, inpId, btnId, zoneId) {
     } catch (e) { erreur = e.message; }
   }
   btn.disabled = false; btn.innerHTML = libelle;
-  if (erreur) { zone.insertAdjacentHTML("afterbegin", `<p class="msg err">${esc(erreur)}</p>`); return; }
-  const chiffres = (res.chiffresUtilises || []).length ? `<p class="small muted" style="margin:6px 0 0"><strong>Chiffres utilisés :</strong> ${res.chiffresUtilises.map(esc).join(" · ")}</p>` : "";
-  zone.insertAdjacentHTML("afterbegin", `<div class="ia-boite"><span class="source ${engine}">Source : ${esc(LIB_MOTEUR[engine])}</span>
-    <p style="margin:4px 0"><strong>${domaine === "ventes" ? "Assistant commercial" : "Assistant service client"} – question :</strong> ${esc(q)}</p>
-    <p style="white-space:pre-wrap;margin:6px 0">${esc(res.reponse || "")}</p>${chiffres}
-    <p class="msg warn small" style="margin:8px 0 0">Proposition de l'IA, à vérifier avant toute décision – ${esc(new Date().toLocaleString("fr-FR"))} – Données fictives.</p></div>`);
+  if (erreur) { zone.innerHTML = `<p class="msg err">${esc(erreur)}</p>`; return; }
+  const entree = {domaine, q, reponse: res.reponse || "", chiffres: res.chiffresUtilises || [], engine, date: new Date().toLocaleString("fr-FR")};
+  zone.innerHTML = carteReponse(entree);
+  if (etat.session.mode !== "demo") { const h = lireHistorique(); h.unshift(entree); ecrireHistorique(h.slice(0, MAX_HISTORIQUE)); afficherHistorique(); }
   inp.value = "";
 }
 
