@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MAROCMARKET – Workflow des réclamations, de la saisie au tableau de bord</title>
+<style>
+:root{--navy:#1F3864;--grey:#5B6B80;--tint:#F4F6FA;--red:#B03A2E;--green:#5E9B2E}
+*{box-sizing:border-box}
+body{margin:0;background:#fff;color:#1E2533;font:16px/1.55 Calibri,"Segoe UI",Arial,sans-serif}
+main{max-width:1180px;margin:0 auto;padding:40px 24px 64px}
+.eyebrow{color:var(--grey);font-size:14px;letter-spacing:.04em;text-transform:uppercase;margin:0 0 6px}
+h1{color:var(--navy);font-size:32px;line-height:1.2;margin:0 0 12px}
+h2{color:var(--navy);font-size:22px;margin:44px 0 12px}
+.lead{font-size:18px;max-width:820px;margin:0}
+figure{margin:28px 0 0;border:1px solid #DDE3EC;border-radius:10px;padding:12px;overflow-x:auto}
+figure svg{min-width:900px}
+figcaption{color:var(--grey);font-size:14px;font-style:italic;margin-top:8px}
+table{width:100%;border-collapse:collapse;font-size:15px}
+th{background:var(--navy);color:#fff;text-align:left;padding:9px 12px;font-weight:600}
+td{padding:9px 12px;border-bottom:1px solid #E3E8EF;vertical-align:top}
+tr:nth-child(even) td{background:var(--tint)}
+td.n{font-weight:700;color:var(--navy);width:40px} td.who{color:var(--grey);white-space:nowrap}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px}
+.card{background:var(--tint);border-radius:10px;padding:18px 22px}
+.card h3{margin:0 0 8px;color:var(--navy);font-size:17px}
+.card ol,.card ul{margin:0;padding-left:20px} .card li{margin:4px 0}
+a{color:#2E75B6} .tag{display:inline-block;background:#FDECEA;color:var(--red);border-radius:4px;padding:0 6px;font-size:13px;font-weight:600}
+footer{margin-top:48px;color:var(--grey);font-size:13px}
+</style></head><body><main>
+<p class="eyebrow">MAROCMARKET · Service clientèle · Données fictives</p>
+<h1>Workflow des réclamations : de la saisie au tableau de bord</h1>
+<p class="lead">Une réclamation suit un seul chemin, sans ressaisie : l'agent la saisit, l'IA propose un classement, l'agent valide, l'application l'enregistre dans la base commune, alerte automatiquement le responsable si elle est urgente, puis le tableau de bord Power BI l'intègre à ses indicateurs.</p>
+<figure><svg style="width:100%;height:auto;display:block" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1390 650" role="img" aria-label="Parcours d'une réclamation, de la saisie par l'agent jusqu'aux indicateurs du tableau de bord Power BI" font-family="Calibri, Segoe UI, Arial, sans-serif">
+<defs><marker id="fl" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#5B6B80"/></marker><marker id="flr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#B03A2E"/></marker></defs>
+<rect x="0" y="0" width="1390" height="650" fill="#FFFFFF"/>
+<rect x="10" y="20" width="1370" height="100" fill="#F4F6FA" stroke="#DDE3EC"/>
+<text x="22" y="66" font-size="14" font-weight="700" fill="#1F3864">Agent du service client</text>
+<text x="22" y="84" font-size="12" fill="#5B6B80">saisit et décide</text>
+<rect x="10" y="120" width="1370" height="100" fill="#FFFFFF" stroke="#DDE3EC"/>
+<text x="22" y="166" font-size="14" font-weight="700" fill="#1F3864">Application en ligne</text>
+<text x="22" y="184" font-size="12" fill="#5B6B80">formulaire et règles</text>
+<rect x="10" y="220" width="1370" height="100" fill="#F4F6FA" stroke="#DDE3EC"/>
+<text x="22" y="266" font-size="14" font-weight="700" fill="#1F3864">IA générative</text>
+<text x="22" y="284" font-size="12" fill="#5B6B80">Gemini</text>
+<rect x="10" y="320" width="1370" height="100" fill="#FFFFFF" stroke="#DDE3EC"/>
+<text x="22" y="366" font-size="14" font-weight="700" fill="#1F3864">Alerte automatique</text>
+<text x="22" y="384" font-size="12" fill="#5B6B80">e-mail</text>
+<rect x="10" y="420" width="1370" height="100" fill="#F4F6FA" stroke="#DDE3EC"/>
+<text x="22" y="466" font-size="14" font-weight="700" fill="#1F3864">Base commune</text>
+<text x="22" y="484" font-size="12" fill="#5B6B80">Google Sheets</text>
+<rect x="10" y="520" width="1370" height="100" fill="#FFFFFF" stroke="#DDE3EC"/>
+<text x="22" y="566" font-size="14" font-weight="700" fill="#1F3864">Tableau de bord</text>
+<text x="22" y="584" font-size="12" fill="#5B6B80">Power BI, direction</text>
+<rect x="166.0" y="38" width="128" height="64" rx="8" fill="#FFFFFF" stroke="#1F3864" stroke-width="1.6"/>
+<text x="230.0" y="57.0" text-anchor="middle" font-size="13" font-weight="700" fill="#1F3864">① Saisie</text>
+<text x="230.0" y="74.0" text-anchor="middle" font-size="11.5" font-weight="400" fill="#1E2533">client, agence, canal,</text>
+<text x="230.0" y="91.0" text-anchor="middle" font-size="11.5" font-weight="400" fill="#1E2533">description du problème</text>
+<rect x="316.0" y="138" width="128" height="64" rx="8" fill="#FFFFFF" stroke="#1F3864" stroke-width="1.6"/>
+<text x="380.0" y="157.0" text-anchor="middle" font-size="13" font-weight="700" fill="#1F3864">② Analyse demandée</text>
+<text x="380.0" y="174.0" text-anchor="middle" font-size="11.5" font-weight="400" fill="#1E2533">e-mails et téléphones</text>
+<text x="380.0" y="191.0" text-anchor="middle" font-size="11.5" font-weight="400" fill="#1E2533">masqués avant envoi</text>
+<rect x="466.0" y="238" width="128" height="64" rx="8" fill="#FFFFFF" stroke="#5E9B2E" stroke-width="1.6"/>
+<text x="530.0" y="257.0" text-anchor="middle" font-size="13" font-weight="700" fill="#5E9B2E">③ Proposition</text>
+<text x="530.0" y="274.0" text-anchor="middle" font-size="11.5" font-weight="400" fill="#1E2533">motif, priorité,</text>
+<text x="530.0" y="291.0" text-anchor="middle" font-size="11.5" font-weight="400" fill="#1E2533">service, résumé</text>
+<rect x="616.0" y="38" width="128" height="64" rx="8" fill="#FFFFFF" stroke="#1F3864" stroke-width="1.6"/>
+<text x="680.0" y="57.0" text-anchor="middle" font-size="13" font-weight="700" fill="#1F3864">④ Validation</text>
+<text x="680.0" y="74.0" text-anchor="middle" font-size="11.5" font-weight="400" fill="#1E2533">l'agent accepte</text>
+<text x="680.0" y="91.0" text-anchor="middle" font-size="11.5" font-weight="400" fill="#1E2533">ou corrige</text>
+<rect x="766.0" y="138" width="128" height="64" rx="8" fill="#FFFFFF" stroke="#1F3864" stroke-width="1.6"/>
+<text x="830.0" y="157.0" text-anchor="middle" font-size="13" font-weight="700" fill="#1F3864">⑤ Enregistrement</text>
+<text x="830.0" y="174.0" text-anchor="middle" font-size="11.5" font-weight="400" fill="#1E2533">référence RECxxxx,</text>
+<text x="830.0" y="191.0" text-anchor="middle" font-size="11.5" font-weight="400" fill="#1E2533">historique créé</text>
+<polygon points="980,132 1032,170 980,208 928,170" fill="#FFFFFF" stroke="#B03A2E" stroke-width="1.6"/>
+<text x="980" y="168" text-anchor="middle" font-size="12.5" font-weight="700" fill="#B03A2E">⑥ Priorité</text><text x="980" y="184" text-anchor="middle" font-size="12.5" font-weight="700" fill="#B03A2E">urgente ?</text>
+<rect x="916.0" y="338" width="128" height="64" rx="8" fill="#FFFFFF" stroke="#B03A2E" stroke-width="1.6"/>
+<text x="980.0" y="357.0" text-anchor="middle" font-size="13" font-weight="700" fill="#B03A2E">⑦ E-mail d'alerte</text>
+<text x="980.0" y="374.0" text-anchor="middle" font-size="11.5" font-weight="400" fill="#1E2533">responsable + 5 abonnés,</text>
+<text x="980.0" y="391.0" text-anchor="middle" font-size="11.5" font-weight="400" fill="#1E2533">lien vers le dossier</text>
+<rect x="1066.0" y="38" width="128" height="64" rx="8" fill="#FFFFFF" stroke="#1F3864" stroke-width="1.6"/>
+<text x="1130.0" y="57.0" text-anchor="middle" font-size="13" font-weight="700" fill="#1F3864">⑧ Suivi du dossier</text>
+<text x="1130.0" y="74.0" text-anchor="middle" font-size="11.5" font-weight="400" fill="#1E2533">En cours, En attente,</text>
+<text x="1130.0" y="91.0" text-anchor="middle" font-size="11.5" font-weight="400" fill="#1E2533">Clôturée</text>
+<rect x="766" y="438" width="428" height="64" rx="8" fill="#FFFFFF" stroke="#1F3864" stroke-width="1.6"/>
+<text x="980.0" y="457.0" text-anchor="middle" font-size="13" font-weight="700" fill="#1F3864">Une ligne par réclamation</text>
+<text x="980.0" y="474.0" text-anchor="middle" font-size="11.5" font-weight="400" fill="#1E2533">statut, priorité, service, dates, historique —</text>
+<text x="980.0" y="491.0" text-anchor="middle" font-size="11.5" font-weight="400" fill="#1E2533">à côté des ventes, clients, produits et agences</text>
+<rect x="1066.0" y="538" width="128" height="64" rx="8" fill="#FFFFFF" stroke="#1F3864" stroke-width="1.6"/>
+<text x="1130.0" y="557.0" text-anchor="middle" font-size="13" font-weight="700" fill="#1F3864">⑨ Actualisation</text>
+<text x="1130.0" y="574.0" text-anchor="middle" font-size="11.5" font-weight="400" fill="#1E2533">Power BI relit</text>
+<text x="1130.0" y="591.0" text-anchor="middle" font-size="11.5" font-weight="400" fill="#1E2533">la base commune</text>
+<rect x="1236.0" y="538" width="128" height="64" rx="8" fill="#FFFFFF" stroke="#1F3864" stroke-width="1.6"/>
+<text x="1300.0" y="557.0" text-anchor="middle" font-size="13" font-weight="700" fill="#1F3864">⑩ Indicateurs à jour</text>
+<text x="1300.0" y="574.0" text-anchor="middle" font-size="11.5" font-weight="400" fill="#1E2533">réclamations, délais,</text>
+<text x="1300.0" y="591.0" text-anchor="middle" font-size="11.5" font-weight="400" fill="#1E2533">urgences, par agence</text>
+<polyline points="294,70 380,70 380,138" fill="none" stroke="#5B6B80" stroke-width="1.6" marker-end="url(#fl)"/>
+<polyline points="444,170 530,170 530,238" fill="none" stroke="#5B6B80" stroke-width="1.6" marker-end="url(#fl)"/>
+<polyline points="594,270 680,270 680,102" fill="none" stroke="#5B6B80" stroke-width="1.6" marker-end="url(#fl)"/>
+<text x="672" y="174" font-size="11.5" font-style="italic" text-anchor="end" fill="#5B6B80">proposition affichée</text>
+<polyline points="744,70 830,70 830,138" fill="none" stroke="#5B6B80" stroke-width="1.6" marker-end="url(#fl)"/>
+<polyline points="894,170 928,170" fill="none" stroke="#5B6B80" stroke-width="1.6" marker-end="url(#fl)"/>
+<polyline points="830,202 830,438" fill="none" stroke="#5B6B80" stroke-width="1.6" marker-end="url(#fl)"/>
+<text x="838" y="370" font-size="11.5" font-style="italic" text-anchor="start" fill="#5B6B80">écrit</text>
+<polyline points="980,208 980,338" fill="none" stroke="#B03A2E" stroke-width="1.6" marker-end="url(#flr)"/>
+<text x="988" y="274" font-size="11.5" font-style="italic" text-anchor="start" fill="#B03A2E">oui</text>
+<polyline points="1032,170 1094,170 1094,102" fill="none" stroke="#5B6B80" stroke-width="1.6" marker-end="url(#fl)"/>
+<text x="1036" y="190" font-size="11.5" font-style="italic" text-anchor="start" fill="#5B6B80">tous les dossiers</text>
+<polyline points="1150,102 1150,438" fill="none" stroke="#5B6B80" stroke-width="1.6" marker-end="url(#fl)"/>
+<text x="1158" y="274" font-size="11.5" font-style="italic" text-anchor="start" fill="#5B6B80">met à jour</text>
+<polyline points="1130,502 1130,538" fill="none" stroke="#5B6B80" stroke-width="1.6" marker-end="url(#fl)"/>
+<text x="1138" y="532" font-size="11.5" font-style="italic" text-anchor="start" fill="#5B6B80">lecture</text>
+<polyline points="1194,570 1236,570" fill="none" stroke="#5B6B80" stroke-width="1.6" marker-end="url(#fl)"/>
+</svg>
+<figcaption>Parcours d'une réclamation en dix étapes. En rouge : la partie automatique déclenchée par une réclamation urgente.</figcaption></figure>
+<h2>Les étapes</h2>
+<table><thead><tr><th>N°</th><th>Étape</th><th>Qui</th><th>Ce qui se passe</th></tr></thead><tbody>
+<tr><td class="n">1</td><td><strong>Saisie</strong></td><td class="who">Agent</td><td>L'agent enregistre le client, l'agence, le canal et la description du problème dans le formulaire.</td></tr>
+<tr><td class="n">2</td><td><strong>Analyse demandée</strong></td><td class="who">Application</td><td>Sur un clic « Analyser avec l'IA », l'application masque e-mails et téléphones, puis envoie la seule description.</td></tr>
+<tr><td class="n">3</td><td><strong>Proposition</strong></td><td class="who">IA (Gemini)</td><td>L'IA propose un motif, une priorité, un service et un résumé. Une valeur hors des listes de l'entreprise est rejetée ; si l'IA ne répond pas, des règles fixées à l'avance prennent le relais.</td></tr>
+<tr><td class="n">4</td><td><strong>Validation</strong></td><td class="who">Agent</td><td>L'agent applique la proposition ou la corrige : c'est lui qui décide de la priorité.</td></tr>
+<tr><td class="n">5</td><td><strong>Enregistrement</strong></td><td class="who">Application → base</td><td>Une référence unique (RECxxxx) est créée et la réclamation est écrite dans la base commune, avec son historique.</td></tr>
+<tr><td class="n">6</td><td><strong>Priorité urgente ?</strong></td><td class="who">Application</td><td>Règle : urgence = risque pour la sécurité (fumée, odeur de brûlé, fuite de gaz, électrocution, inondation).</td></tr>
+<tr><td class="n">7</td><td><strong>E-mail d'alerte</strong></td><td class="who">Automatique</td><td>Si la nouvelle réclamation est urgente, un e-mail part aussitôt vers le responsable et jusqu'à cinq abonnés en copie cachée, avec le lien du dossier. Aucune alerte pour une modification.</td></tr>
+<tr><td class="n">8</td><td><strong>Suivi du dossier</strong></td><td class="who">Agent</td><td>Le dossier passe par En cours, En attente puis Clôturée ; chaque action met à jour la base (date de clôture, délai, historique).</td></tr>
+<tr><td class="n">9</td><td><strong>Actualisation</strong></td><td class="who">Power BI</td><td>À l'actualisation, le tableau de bord relit la base commune : réclamations, ventes, clients, produits et agences.</td></tr>
+<tr><td class="n">10</td><td><strong>Indicateurs à jour</strong></td><td class="who">Direction</td><td>Nombre de réclamations, urgences, délais, respect du délai cible, par agence et par motif.</td></tr>
+</tbody></table>
+<h2>Tester le workflow</h2>
+<div class="grid">
+<div class="card"><h3>Alerte automatique</h3><ol>
+<li>Ouvrir l'application : <a href="https://anouarmamchour.github.io/marocmarket-reclamations/">https://anouarmamchour.github.io/marocmarket-reclamations/</a> (accès de démonstration indiqué dans la page des liens).</li>
+<li>Menu « Réclamations » → « Configuration des alertes » : inscrire son adresse e-mail.</li>
+<li>« Nouvelle réclamation » : décrire un appareil qui dégage de la fumée, analyser avec l'IA, valider la priorité <span class="tag">Urgente</span>, enregistrer.</li>
+<li>Vérifier la réception de l'e-mail d'alerte (penser au dossier des indésirables) et ouvrir le dossier par son lien.</li>
+</ol></div>
+<div class="card"><h3>Remontée dans le tableau de bord</h3><ol>
+<li>Faire avancer le dossier (En cours, puis Clôturée) depuis sa fiche : l'historique se met à jour.</li>
+<li>Dans Power BI, cliquer sur « Actualiser ».</li>
+<li>Page « Réclamations clients » ou « Objectifs et alertes » : le nombre de réclamations et d'urgences augmente d'une unité.</li>
+</ol></div>
+</div>
+<h2>Preuves déjà obtenues</h2>
+<div class="card"><ul>
+<li><strong>18 novembre 2026 :</strong> la réclamation urgente REC0321 a déclenché l'e-mail d'alerte, reçu avec le lien du dossier ; un abonné l'a reçu en copie cachée.</li>
+<li>Une réclamation de priorité moyenne n'a déclenché aucun e-mail ; la modification d'un dossier urgent n'en a pas renvoyé.</li>
+<li>Après actualisation, le tableau de bord est passé de 320 à 321 réclamations et de 19 à 20 urgentes.</li>
+</ul></div>
+<footer>Prototype de démonstration · Toutes les données sont fictives · Anouar Mamchour, novembre 2026</footer>
+</main></body></html>
