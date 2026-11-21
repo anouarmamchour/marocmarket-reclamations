@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>MAROCMARKET – Gestion des réclamations (données fictives)</title>
+<title>MAROCMARKET – Gestion des réclamations</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -163,7 +163,7 @@ code.ex{display:block;background:#f9fafb;border:1px solid var(--bord);border-rad
 <section id="ecranConnexion">
   <div class="carte-login">
     <div class="logo">MAROC<span>MARKET</span></div>
-    <p class="muted" style="margin:4px 0 16px">Gestion des réclamations clients – <strong>Données fictives</strong></p>
+    <p class="muted" style="margin:4px 0 16px">Gestion des réclamations clients</p>
     <form id="formLogin" autocomplete="off" novalidate>
       <div class="champ">
         <label for="lgUser">Identifiant</label>
@@ -193,7 +193,6 @@ code.ex{display:block;background:#f9fafb;border:1px solid var(--bord);border-rad
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
         <div class="logo">MAROC<span>MARKET</span></div>
         <span class="muted">Réclamations clients</span>
-        <span class="badge-fictif">Données fictives</span>
       </div>
       <div class="actions-haut">
         <span class="muted small" id="majInfo"></span>
@@ -383,7 +382,7 @@ code.ex{display:block;background:#f9fafb;border:1px solid var(--bord);border-rad
       </div>
     </section>
   </main>
-  <footer>MAROCMARKET – prototype de démonstration – Données fictives</footer>
+  <footer>MAROCMARKET – prototype de démonstration</footer>
 </div>
 
 <div id="toast" class="cache" role="status"></div>
@@ -798,7 +797,7 @@ async function genererSynthese(btnId, zoneId) {
   const bloc = v => Array.isArray(v) ? "<ul>" + v.map(x => `<li>${esc(x)}</li>`).join("") + "</ul>" : `<p style="white-space:pre-wrap">${esc(v || "")}</p>`;
   zone.innerHTML = `<div class="ia-boite"><span class="source ${engine}">Source : ${esc(LIB_MOTEUR[engine])}</span>
     ${parties.map(([t, v]) => `<h3>${esc(t)}</h3>${bloc(v)}`).join("")}
-    <p class="msg warn" style="margin-bottom:0"><strong>À valider par le responsable avant diffusion.</strong> Généré le ${esc(new Date().toLocaleString("fr-FR"))} à partir de ${fmtNb(data.total)} dossiers – Données fictives.</p></div>`;
+    <p class="msg warn" style="margin-bottom:0"><strong>À valider par le responsable avant diffusion.</strong> Généré le ${esc(new Date().toLocaleString("fr-FR"))} à partir de ${fmtNb(data.total)} dossiers.</p></div>`;
 }
 
 /* =========================================================================
@@ -1269,7 +1268,7 @@ function carteReponse(x) {
   return `<div class="ia-boite"><span class="source ${x.engine}">Source : ${esc(LIB_MOTEUR[x.engine] || "")}</span>
     <p style="margin:4px 0"><strong>${esc(NOM_ASSISTANT[x.domaine] || "Assistant")} – question :</strong> ${esc(x.q)}</p>
     <p style="white-space:pre-wrap;margin:6px 0">${esc(x.reponse)}</p>${chiffres}
-    <p class="msg warn small" style="margin:8px 0 0">Proposition de l'IA, à vérifier avant toute décision – ${esc(x.date)} – Données fictives.</p></div>`;
+    <p class="msg warn small" style="margin:8px 0 0">Proposition de l'IA, à vérifier avant toute décision – ${esc(x.date)}.</p></div>`;
 }
 function afficherHistorique() {
   const h = lireHistorique();
@@ -1314,7 +1313,7 @@ async function analyserVentes() {
     zone.innerHTML = `<div class="ia-boite"><span class="source ${engine}">Source : ${esc(LIB_MOTEUR[engine])}</span>
       <p style="margin:4px 0"><strong>Question de la direction :</strong> ${esc(rep.question)}</p>
       ${Object.keys(parties).map(p => `<h3>${esc(p.replace(/^\d+\.\s*/, ""))}</h3><ul>${parties[p].map(t => `<li>${esc(t)}</li>`).join("")}</ul>`).join("")}
-      <p class="msg warn" style="margin-bottom:0"><strong>À valider par la direction.</strong> Analyse produite le ${esc(rep.genereLe)} à partir des totaux par agence et par semestre – Données fictives.</p></div>`;
+      <p class="msg warn" style="margin-bottom:0"><strong>À valider par la direction.</strong> Analyse produite le ${esc(rep.genereLe)} à partir des totaux par agence et par semestre.</p></div>`;
   } catch (e) { zone.innerHTML = `<p class="msg err">${esc(e.message)}</p>`; }
   btn.disabled = false; btn.innerHTML = libelle;
 }
